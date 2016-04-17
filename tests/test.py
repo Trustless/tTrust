@@ -28,7 +28,6 @@ class TestContext():
         self.dao_addr = None
         self.offer_addr = None
         self.token_amounts = None
-        self.prop_id = None
         self.tests_dir = os.path.dirname(os.path.realpath(__file__))
         datadir = os.path.join(self.tests_dir, "data")
         self.save_file = os.path.join(datadir, "saved")
@@ -64,13 +63,6 @@ class TestContext():
         # creating genesis block with a generous allocation for all accounts
         create_genesis(self.accounts)
         print("Done!")
-
-    def next_proposal_id(self):
-        if not self.prop_id:
-            self.prop_id = 1
-        else:
-            self.prop_id += 1
-        return self.prop_id
 
     def remaining_time(self):
         return self.closing_time - ts_now()
@@ -159,7 +151,8 @@ class TestContext():
         dao_contract = edit_dao_source(
             self.contracts_dir,
             keep_limits,
-            self.args.proposal_halveminquorum
+            self.args.proposal_halveminquorum,
+            self.args.split_execution_period
         )
 
         res = self.compile_contract(dao_contract)

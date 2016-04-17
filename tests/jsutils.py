@@ -7,7 +7,7 @@ def js_common_intro(accounts_num):
     for i in range(0, accounts_num):
         s += "personal.unlockAccount(eth.accounts[{}], '123');\n".format(i)
     s += """// set the basic accounts, coinbase should be random so mining rewards don't pollute results
-var serviceProvider = eth.accounts[0];
+var curator = eth.accounts[0];
 var proposalCreator = eth.accounts[1];
 var etherBase = '0x9999999999999999999999999999999999999999';
 web3.miner.setEtherbase(etherBase);
@@ -18,6 +18,10 @@ function checkWork() {
     miner.start(1);
     admin.sleepBlocks(3);
     miner.stop(0);
+}
+
+function time_now() {
+    return Math.floor(Date.now() / 1000);
 }
 
 function bigDiff(astr, bstr) {
@@ -35,6 +39,83 @@ function addToTest(name, value) {
 
 function testResults() {
     console.log("Test Results: " + JSON.stringify(testMap));
+}
+
+function testFail(str) {
+    console.log("TEST FAIL: " + str);
+    exit();
+}
+
+function attempt_proposal(
+    argdao,
+    recipient,
+    proposal_creator,
+    ether_amount,
+    desc,
+    bytecode,
+    debating_period,
+    ether_deposit,
+    is_split_proposal
+    ) {
+
+    dao_closing_time = argdao.closingTime();
+
+    if (!argdao.isFueled()) {
+        testFail(
+            "Failed to create a proposal to: '" + desc + "' because the DAO "
+            + "is not fueled."
+        );
+    }
+    if (dao_closing_time.gt(time_now())) {
+        testFail(
+            "Failed to create a proposal to: '" + desc + "' because the DAO's "
+            + "sale time has not yet closed.\\ndao_closing_time: "
+            + dao_closing_time + "\\nnow(): " + time_now()
+        );
+    }
+    proposals_num_before = argdao.numberOfProposals();
+    console.log("Creating a new proposal to: '" + desc + "'");
+    argdao.newProposal.sendTransaction(
+    recipient,
+    web3.toWei(ether_amount, "ether"),
+    desc,
+    bytecode,
+    debating_period,
+    is_split_proposal,
+    {
+        from: proposal_creator,
+        value: web3.toWei(ether_deposit, "ether"),
+        gas: 1000000
+    });
+    checkWork();
+    proposals_num_now = argdao.numberOfProposals();
+
+    if (!proposals_num_now.equals(proposals_num_before.add(1))) {
+        testFail("Failed to create a proposal to: " + desc + "'");
+    } else {
+        console.log("Proposal succesfully created");
+    }
+    return proposals_num_now;
+}
+
+function attempt_split(argdao, prop_id, user, new_curator, split_exec_period) {
+    console.log("Account '" + user + "' is calling splitDAO()");
+    var vote_deadline = argdao.proposals(prop_id)[3];
+    if (vote_deadline.gt(time_now())) {
+        testFail("Can't split the DAO while the proposal is still debated.");
+    }
+    var prop_deadline = vote_deadline.add(split_exec_period);
+    console.log("prop_deadline: " + prop_deadline);
+    console.log("now(): " + time_now());
+    if (prop_deadline.lessThan(time_now() + 5)) {
+        testFail("Can no longer vote to split the DAO. 'now > p.votingDeadline + splitExecutionPeriod'");
+    }
+    argdao.splitDAO.sendTransaction(
+        prop_id,
+        new_curator,
+        {from:user, gas: 4000000});
+    checkWork();
+    console.log("Account '" + user + "' called splitDAO() succesfully");
 }
 """
     return s

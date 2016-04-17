@@ -2,41 +2,26 @@ var dao = web3.eth.contract($dao_abi).at('$dao_address');
 
 // some kind soul makes a donation to the DAO, so rewards get populated
 console.log("Donating to DAO...");
-dao.payDAO.sendTransaction({
-    from: eth.accounts[1],
-    value: web3.toWei($total_rewards, "ether"),
-    gas: 100000
+eth.sendTransaction({
+    from:eth.accounts[1],
+    to: dao.DAOrewardAccount(),
+    gas: 210000,
+    value: web3.toWei($total_rewards, "ether")
 });
 checkWork();
 
-// create a new proposal for sending this whole donation to the rewardAccount
-console.log("Creating proposal to send to rewardAccount...");
-var tx_hash = null;
-dao.newProposal.sendTransaction(
-    dao.rewardAccount(),
-    web3.toWei($total_rewards, "ether"),
-    'Send money to the reward account',
-    '$transaction_bytecode', // bytecode, not needed here, calling the fallback function
-    $debating_period,
-    false,
-    {
-        from: proposalCreator,
-        value: web3.toWei($proposal_deposit, "ether"),
-        gas: 1000000
-    }
-    , function (e, res) {
-        if (e) {
-            console.log(e + "at newProposal()!");
-        } else {
-            tx_hash = res;
-            console.log("newProposal tx hash is: " + tx_hash);
-        }
-    }
+var prop_id = attempt_proposal(
+    dao, // DAO in question
+    dao.address, // recipient
+    proposalCreator, // proposal creator
+    0, // proposal amount in ether
+    'Ask the DAO to retrieveDAOReward()', // description
+    '$transaction_bytecode', //bytecode
+    $debating_period, // debating period
+    $proposal_deposit + 1, // proposal deposit in ether
+    false // whether it's a split proposal or not
 );
-checkWork();
 
-
-var prop_id = $prop_id;
 console.log("Voting for proposal '" + prop_id + "' ...");
 // in this scenario let's just say everyone votes 100% in favour
 for (i = 0; i < eth.accounts.length; i++) {
@@ -55,17 +40,17 @@ setTimeout(function() {
     miner.stop(0);
     console.log("Executing the proposal...");
     // now execute the proposal
-    dao.executeProposal.sendTransaction(prop_id, '$transaction_bytecode', {from:serviceProvider, gas:1000000});
+    dao.executeProposal.sendTransaction(prop_id, '$transaction_bytecode', {from:curator, gas:1000000});
     checkWork();
-    addToTest('provider_balance_before_claim', eth.getBalance(serviceProvider));
+    addToTest('curator_balance_before_claim', eth.getBalance(curator));
     console.log("Claiming the reward...");
-    dao.getMyReward.sendTransaction({from: serviceProvider, gas: 1000000});
+    dao.getMyReward.sendTransaction({from: curator, gas: 1000000});
     checkWork();
-    addToTest('provider_balance_after_claim', eth.getBalance(serviceProvider));
+    addToTest('curator_balance_after_claim', eth.getBalance(curator));
     addToTest(
-        'provider_reward_portion',
+        'curator_reward_portion',
         parseFloat(web3.fromWei(bigDiff(
-            testMap['provider_balance_after_claim'], testMap['provider_balance_before_claim']
+            testMap['curator_balance_after_claim'], testMap['curator_balance_before_claim']
         )))
     );
     addToTest('DAO_balance', parseFloat(web3.fromWei(eth.getBalance('$dao_address'))));

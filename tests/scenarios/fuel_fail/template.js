@@ -16,10 +16,10 @@ checkWork();
 setTimeout(function() {
     miner.stop(0);
     addToTest('dao_minValue', dao.minValue());
-    addToTest('dao_funded', dao.isFunded());
+    addToTest('dao_fueled', dao.isFueled());
     addToTest('total_supply', parseInt(web3.fromWei(dao.totalSupply())));
 
-    // since funding failed let's get a refund
+    // since fueling failed let's get a refund
     var eth_balance_before_refund = [];
     for (i = 0; i < eth.accounts.length; i++) {
         eth_balance_before_refund.push(web3.fromWei(eth.getBalance(eth.accounts[i])));

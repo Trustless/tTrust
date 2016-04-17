@@ -2,10 +2,10 @@ from utils import arr_str, create_votes_array
 
 
 scenario_description = (
-    " Testing an equal split, with a new SP. Half of the token holders vote "
-    "for a split to a new DAO and half vote to stay with the old one. Assert "
-    "that the split happens, a new DAO is created and that the tokens are "
-    "burned from the old DAO and moved to the new DAO succesfully. Also "
+    " Testing an equal split, with a new Curator. Half of the token holders "
+    "vote for a split to a new DAO and half vote to stay with the old one. "
+    "Assert that the split happens, a new DAO is created and that the tokens "
+    "are burned from the old DAO and moved to the new DAO succesfully. Also "
     "assert that the reward tokens are succesfully transferred"
 )
 
@@ -71,15 +71,25 @@ def prepare_test_split(ctx, split_gas):
 
     votes = create_votes_array(
         ctx.token_amounts,
-        not ctx.args.proposal_fail
+        not ctx.args.proposal_fail,
+        True
     )
+    # remember the account information of the first True votes. They will be
+    # the child dao curator in this scenario and grandchild curator in the next
+    iterator = (
+        (ctx.accounts[i], ctx.token_amounts[i])
+        for i, vote in enumerate(votes) if vote is True
+    )
+    (ctx.child_dao_curator, _) = next(iterator)
+    (ctx.grandchild_dao_curator, ctx.grandchild_dao_curator_before) = next(iterator)
     ctx.create_js_file(substitutions={
-            "dao_abi": ctx.dao_abi,
-            "dao_address": ctx.dao_addr,
-            "debating_period": ctx.args.split_debate_seconds,
-            "split_gas": split_gas,
-            "votes": arr_str(votes),
-            "prop_id": ctx.next_proposal_id()
+        "dao_abi": ctx.dao_abi,
+        "dao_address": ctx.dao_addr,
+        "debating_period": ctx.args.split_debate_seconds,
+        "split_execution_period": ctx.args.split_execution_period,
+        "split_gas": split_gas,
+        "votes": arr_str(votes),
+        "child_dao_curator": ctx.child_dao_curator
         }
     )
     print(
@@ -105,17 +115,19 @@ def run(ctx):
         ctx.dao_rewardToken_after_rewards
     )
 
-    ctx.execute(expected={
-        # default deposit,a simple way to test new DAO contract got created
-        "newDAOProposalDeposit": 20,
+    results = ctx.execute(expected={
+        "newDAOProposalDeposit": 0,
         "oldDAOBalance": oldBalance,
         "newDAOBalance": newBalance,
         "oldDaoRewardTokens": oldDAORewards,
         "newDaoRewardTokens": newDAORewards
     })
-    # if gas != enough
-    #     eval_test('split-insufficient-gas', output, {
-    #     "newDAOProposalDeposit": 0,
-    #     "oldDAOBalance": self.token_amounts,
-    #     "newDAOBalance": [0] * len(self.token_amounts),
-    # })
+
+    # remember some variables so they can be used in later tests
+    ctx.child_dao_closing_time = results['new_dao_closing_time']
+    ctx.child_dao_address = results['proposal_newdao']
+    ctx.child_dao_members = [
+        ctx.accounts[idx] for idx, x in enumerate(votes) if x is True
+    ]
+    ctx.child_dao_balance_at_creation = results['new_dao_balance']
+    ctx.child_dao_total_supply_at_creation = results['new_dao_total_supply']

@@ -46,7 +46,7 @@
 \begin{document}
 
 \begin{abstract}
-This paper describes the first implementation of Decentralized Autonomous Organization (DAO) code to automate organizational governance and decision-making. The code can be used by individuals working together collaboratively outside of a traditional corporate form. It can also be used by a registered corporate entity to automate formal governance rules contained in corporate bylaws or imposed by law.  We first discuss the DAO Concept.  We then discuss minority rights, and propose a solution to a ``robbing the minority'' attack vector.  Finally, we provide a practical implementation of a first generation DAO entity using smart contracts written in Solidity on the Ethereum blockchain.
+This paper describes the first implementation of Decentralized Autonomous Organization (DAO) code to automate organizational governance and decision-making. The code can be used by individuals working together collaboratively outside of a traditional corporate form. It can also be used by a registered corporate entity to automate formal governance rules contained in corporate bylaws or imposed by law. First the DAO concept is described, then minority rights is discussed, and a solution to a ``robbing the minority'' attack vector is proposed. Finally, a practical implementation of a first generation DAO entity is provided using smart contracts written in Solidity on the Ethereum blockchain.
 \end{abstract}
 
 \maketitle
@@ -56,81 +56,89 @@ This paper describes the first implementation of Decentralized Autonomous Organi
 
 \section{Introduction}\label{sec:introduction}
 
-Corporate entities of all kinds are governed by rules that describe permitted and proscribed conduct.  These rules may exist as private contracts (like bylaws or shareholder agreements) between corporate owners.  They may also be imposed by law in addition to or in the absence of a written agreement between participants.
+Corporate entities of all kinds are governed by rules that describe permitted and proscribed conduct. These rules may exist as private contracts (like bylaws or shareholder agreements) between corporate owners. They may also be imposed by law in addition to or in the absence of a written agreement between participants.
 
-Historically, corporations have only been able to act through people (or through corporate entities that were themselves ultimately controlled by people).  This presents two simple and fundamental problems.  Whatever a private contract or public law require:  (1) people do not always follow the rules and (2) people do not always agree what the rules actually require.  Collaboration without a corporate form does not solve these problems, necessarily, and it may introduce others.  In the absence of a coporate form, an explicit written agreement is substituted for unclear informal ``understandings'' and legal protections provided by a corporate form will not be available.
+Historically, corporations have only been able to act through people (or through corporate entities that were themselves ultimately controlled by people). This presents two simple and fundamental problems. Whatever a private contract or public law require:  (1) people do not always follow the rules and (2) people do not always agree what the rules actually require. Collaboration without a corporate form does not solve these problems, necessarily, and it may introduce others. In the absence of a corporate form, an explicit written agreement is substituted for unclear informal ``understandings'' and the legal protections provided by a corporate form will not be available.
 
-Rule-breaking within an organization not always obvious, and motives may not matter to stakeholders once their money has been lost.  While bad behavior may make a corporation or its management civilly or criminally liable, punishment can come as little comfort to an investor who has already lost their money.   
+Rule-breaking within an organization not always obvious, and motives may not matter to stakeholders once their money has been lost. While bad behavior may make a corporation or its management civilly or criminally liable, punishment can come as little comfort to an investor who has already lost their money.  
 
-Crowdfunding (\cite{2015CFReport}) amplifies the problem.  On the one hand, it has made it easier for small contributors to invest in large projects.  It has also made it possible for entrepeneurs to receive financial support that might not have been easily available in the past.  On the other hand, small investors remain vulnerable to financial mismanagement or outright fraud.  Because they have small stakes in a venture, they may lack power to identify problems, participate in governance decisions, or to easily recover their investment.  (\cite{9MostDisgracefulCrowdFundings, CrowdfundingFailTC}).  At the same time, corporate leadership and managment may be accused of malfeasance or mismanagement when they believe that they have acted in good faith, based on their understanding of their obligations and interpretation of applicable rules.
+Crowdfunding (\cite{2015CFReport}) amplifies the problem. On the one hand, it has made it easier for small contributors to invest in large projects, and it has also made it possible for entrepreneurs to receive financial support that might not have been easily available in the past. On the other hand, small investors remain vulnerable to financial mismanagement or outright fraud, and because they have a small stake in a venture, they may lack power to identify problems, participate in governance decisions, or to easily recover their investment (\cite{9MostDisgracefulCrowdFundings, CrowdfundingFailTC}). At the same time, corporate leadership and management may be accused of malfeasance or mismanagement when they believe that they have acted in good faith, based on their understanding of their obligations and interpretation of applicable rules.
 
-We present a potential solution using Ethereum, (\cite{buterin2013ethereum,Wood2014ethereum}) a blockchain technology which integrates a Turing complete programming language with smart contract processing functionality.  We illustrate a method that for the first time allows the creation of organizations in which (1) ?participants?  maintain direct real-time control of contributed funds and (2) where governance rules are formalized and automated using software.  Specifically, we have written generic smart contract code (\cite{szabo1997formalizing, miller1997future}) that can be used to form a Decentralized Autonomous Organization (DAO) on the Ethereum blockchain. In this paper we explain how the DAO code works.  We do so by focusing on some basic formation and governance features, including formation, funding and voting rights.
+This paper presents a potential solution using Ethereum, (\cite{buterin2013ethereum,Wood2014ethereum}) a blockchain technology which integrates a Turing complete programming language with smart contract processing functionality. This paper illustrates a method that for the first time allows the creation of organizations in which (1) participants maintain direct real-time control of contributed funds and (2)  governance rules are formalized, automated and enforced using software. Specifically, generic smart contract code (\cite{szabo1997formalizing, miller1997future}) has been written that can be used to form a Decentralized Autonomous Organization (DAO) on the Ethereum blockchain. This paper explains how a DAO's code works, focusing on some basic formation and governance features, including structure, creation and voting rights.
 
-We first describe the DAO's formation and basic functionality.  We then discuss minority owner rights and propose a solution to the ``Majority Robbing the Minority Attack'' problem, the ``DAO split''. We then explore the smart contract code in detail, and conclude with an explanation and detailed specification of the ``DAO split''.
+First a DAO's Creation Phase and basic functionality are described. Then minority owner rights are discussed and a solution to the ``Majority Robbing the Minority Attack'' problem is proposed: the ``DAO split.'' The smart contract code is then explored in detail, and conclude with an explanation and detailed specification of the ``DAO split.''
 
 The code for the smart contracts is located at: \url{https://github.com/slockit/DAO/}
 
-A word of caution, at the outset:  the legal status of DAOs remains the subject of active and vigorous debate and discussion.  Not everyone shares the same definition.  Some have said that they are autonomous code and can operate independently of legal systems; others have said that they must be owned or operate by humans or human created entities. There will be many uses cases, and the DAO code will develop over time.  Ultimately, how a DAO functions and its legal status will depend on many factors, including how DAO code is used, where it is used, and who uses it.  We do not speculate about the legal status of DAOs worldwide.  This paper is not intended to offer legal advice or conclusions.  Anyone who uses DAO code will do so at their own risk.
+A word of caution, at the outset:  the legal status of DAOs remains the subject of active and vigorous debate and discussion. Not everyone shares the same definition. Some have said that they are autonomous code and can operate independently of legal systems; others have said that they must be owned or operate by humans or human created entities. There will be many uses cases, and the DAO code will develop over time. Ultimately, how a DAO functions and its legal status will depend on many factors, including how DAO code is used, where it is used, and who uses it. This paper does not speculate about the legal status of DAOs worldwide. This paper is not intended to offer legal advice or conclusions. Anyone who uses DAO code will do so at their own risk.
 
 
 
-\section{Dao Concept | Dao Practice}
+\section{Dao Concept}
 
-DAO code is written in the ``Solidity'' programming language.  A DAO is activated by deployment on the Ethereum blockchain.  
+DAO code is written in the ``Solidity'' programming language. A DAO is activated by deployment on the Ethereum blockchain. 
 
-Once deployed, the DAO code requires ``ether'' to engage in transactions on Ethereum.  (Ether is the digital fuel that powers the Ethereum network).  Without ether, a DAO can not do very much and a DAO's first order of business is to receive ether.  After the DAO code is deployed, ether may be sent to the DAO?s smart contract address during an initial funding period which is defined in the DAO code. 
+Once deployed, a DAO's code requires ``ether'' to engage in transactions on Ethereum. Ether is the digital fuel that powers the Ethereum network. Without ether, a DAO can not do anything so a DAO's first order of business is to receive ether. After a DAO's code is deployed, ether may be sent to the DAO's smart contract address during an initial Creation Phase which is defined in the DAO's code. 
 
-In exchange for ether, the DAO code creates tokens that are then assigned to the account of the person who sent the ether.  A token grants its holder voting and ownership rights.  The number of tokens created is proportional to the amount of ether transferred.  Token price varies over time (see section \ref{TokenPrice}). Token ownership is freely transferable on the Ethereum blockchain, when the funding period is over.
+In exchange for ether, a DAO's code creates tokens that are assigned to the account of the person who sent the ether. The token grants its holder voting and ownership rights. The number of tokens created is proportional to the amount of ether transferred. Token price varies over time (see section \ref{TokenPrice}). Token ownership is freely transferable on the Ethereum blockchain, when the Creation Phase has ended.
 
-A minimum DAO funding goal and funding time-period are set as parameters in the DAO code prior to deployment.  If the minimum funding amount is not reached at the close of the funding period, all ether is returned. After the funding period has ended, we denote the total ether raised by $\Xi_{\text{raised}}$ and the total amount of tokens created by $T_{\text{total}}$. 
+A minimum DAO Creation goal and Creation Phase time-period are set as parameters in a DAO's code at the time of deployment. If the minimum DAO Creation goal is not reached at the close of the Creation Phase, all ether is returned. After the Creation Phase has ended, the total ether raised is denoted by $\Xi_{\text{raised}}$ and the total amount of tokens created is denoted by $T_{\text{total}}$. 
 
-The DAO stores ether and transmits it based on the DAO code. It does not do much else.  It cannot build a product, write code or develop hardware.  It requires what we have called a "Service Provider'' to accomplish these and other goals.  The DAO engages a Service Provider by accepting a Service Provider proposal. 
+A DAO stores ether and other Ethereum based tokens and transmits them based on the DAO's code. It does not do much else. It cannot build a product, write code or develop hardware. It requires a ``Contractor'' to accomplish these and other goals. A DAO selects a Contractor by accepting a Contractor's proposal. 
 
-DAO token holders may also submit proposals to use the DAO's ether, denoted by $\Xi_{\text{transfer}}$, for a variety of purposes.  If a proposal is approved, the DAO tranmits ether to a smart contract representing the proposed project. Such smart contracts can be parameterized and enable the DAO to interact with and influence the project being funded.
-An example of such an agreement between the DAO and a project to be funded can be found in the appendix (\ref{app:SampleOffer}).
+Any DAO Token Holder may become a Contractor by submitting proposals to use a DAO's ether, denoted by $\Xi_{\text{transfer}}$. If a proposal is approved, the DAO transmits ether to a smart contract representing the proposed project. Such smart contracts can be parameterized and enable a DAO to interact with and influence the project it chose to support.
+An example of such an agreement between a DAO and a project to be funded can be found in the appendix (\ref{app:SampleOffer}).
 
-Members of the DAO cast votes weighted by the amount of tokens they control.  Tokens are divisible, indistinguishable, fungible and can easily be transferred between accounts. Within the contracts, the individual actions of members, cannot be directly determined. There is a set timeframe $t_p$ to debate and vote on any given proposal. In our example, this timeframe is set by the creator of the proposal, and is required to be at least two weeks for a regular proposal.
+Members of a DAO cast votes weighted by the amount of tokens they control. Tokens are divisible, indistinguishable and can easily be transferred between accounts. Within the contracts, the individual actions of members, cannot be directly determined. There is a set time frame $t_p$ to debate and vote on any given proposal. In our example, this time frame is set by the creator of the proposal, and is required to be at least two weeks for a regular proposal.
 
-After $t_p$ has passed, any token holder can call a function in the DAO contract that will verify that the majority voted in favor of the proposal and that quorum was reached; the function will execute the proposal if this is the case. If this is not the case, the proposal will be closed. The minimum quorum represents the minimum number of tokens required for a vote to be valid, is denoted by $q_{min}$, and calculated as follows:
+After $t_p$ has passed, any token holder can call a function in the DAO contract that will verify that the majority voted in favor of the proposal and that quorum was reached; the function will execute the proposal if this is the case. If this is not the case, the proposal will be closed. 
+
+The minimum quorum represents the minimum number of tokens required for a vote to be valid, is denoted by $q_{min}$, and calculated as follows:
 \begin{equation}
- q_{min} = \frac{T_{\text{total}}}{d} + \frac{\Xi_{\text{transfer}} \cdot T_{\text{total}}}{3 \cdot (\Xi_{DAO} + R_{\text{total}})}
+ q_{min} = \frac{T_{\text{total}}}{d} + \frac{\Xi_{\text{transfer}} \cdot T_{\text{total}}}{3 \cdot (\Xi_{DAO} + R_{\text{DAO}})}
  \label{minQuorum}
 \end{equation}
 Where $d$ is the \verb|minQuorumDivisor|. This parameter's default value is $5$, but it will double in the case the quorum has not been met for over a year.
-$\Xi_{DAO}$ is the amount of ether owned by the DAO and $R_{\text{total}}$ is the total amount of reward tokens ever generated as explained in section \ref{RewardToken} (also see \verb|totalRewardToken| in \ref{app:DAO}). The sum $\Xi_{DAO} + R_{\text{total}}$ is equal to the amount of ether raised plus the rewards received or said another way, the total amount of ether the DAO has ever received.
+$\Xi_{DAO}$ is the amount of ether owned by a DAO and $R_{\text{DAO}}$ is the amount of reward tokens owned by this DAO, as explained in section \ref{RewardToken} (also see \verb|rewardToken| in \ref{app:DAO}). The sum $\Xi_{DAO} + R_{\text{DAO}}$ is equal to the amount of ether used to Create DAO tokens plus the rewards received or said another way, the total amount of ether a DAO has ever received.
 
-This means, initially, a quorum of  $20\%$ of all tokens is required for any proposal to pass. In the event $\Xi_{\text{transfer}}$ equals the amount of ether raised during the funding period plus the rewards received, then a quorum of $53.33\%$ is required.
+This means, initially, a quorum of  $20\%$ of all tokens is required for any proposal to pass. In the event $\Xi_{\text{transfer}}$ equals the amount of ether a DAO has ever received, then a quorum of $53.33\%$ is required.
 
-In order to prevent ``proposal spam'', a minimal deposit is required to be paid when creating a proposal, which gets refunded if quorum is achieved. If quorum is not achieved, the DAO keeps the proposal deposit. The value of the proposal deposit can be changed from the default value by the DAO through another proposal.
+In order to prevent ``proposal spam,'' a minimal deposit can be required to be paid when creating a proposal, which gets refunded if quorum is achieved. If quorum is not achieved, the DAO keeps the proposal deposit. The value of the proposal deposit can be changed from the default value by the DAO through another proposal.
 
 \section{Notation}
 Throughout this paper, $\Xi$ always represents an amount of ether in its base unit wei. This is defined as $1 \: \text{Wei} = 10^{-18} \: \text{Ether}$ (\cite{Wood2014ethereum}).
-Similarly, DAO tokens are denoted with $T$ and always represent the amount of DAO tokens in its base unit. We define this as $10^{-16}$ DAO token.
+Similarly, DAO tokens are denoted with $T$ and always represent the amount of DAO tokens in its base unit, defined as $10^{-16}$ DAO token.
+
 \section{Majority robs minority attack}
-Minority owner rights can be a problem in any corporate form.  Minority rights may be protected or addressed by provisions in corporate governance documents or by statute or judge-made law.  But many of these solutions fail because minority owners may lack voting rights or the ability to ``vote with their feet" and easily retrieve their capital.  We present a solution to this problem in the DAO code.  
+Minority owner rights can be a problem in any corporate form. Minority rights may be protected or addressed by provisions in corporate governance documents or by statute or judge-made law. But many of these solutions fail because minority owners may lack voting rights or the ability to ``vote with their feet" and easily retrieve their capital. This paper presents a solution to this problem in the DAO's code. 
 
-A problem every that DAO has to mitigate is the ability for the majority to rob the minority by changing governance and ownership rules after DAO formation.  For example, an attacker with $51\%$ of the tokens, acquired either during the funding period or purchased afterwards, could make a proposal to send all the funds to themselves. Since they would hold the majority of the tokens, they would always be able to pass their proposals.
+A problem every DAO has to mitigate is the ability for the majority to rob the minority by changing governance and ownership rules after DAO formation. For example, an attacker with $51\%$ of the tokens, acquired either during the funding period or purchased afterwards, could make a proposal to send all the funds to themselves. Since they would hold the majority of the tokens, they would always be able to pass their proposals.
 
-To prevent this, the minority must always have the ability to retrieve their portion of the funds.  Our solution is to allow the DAO to split into two. If an individual, or a group of token holders, disagree with a proposal and want to retrieve their portion of the funds before the proposal gets executed, they can submit a special type of proposal to form a new DAO. The minority can then vote to move their funds to this new DAO, leaving the majority alone only able to spend their own money.
+To prevent this, the minority must always have the ability to retrieve their portion of the funds. Our solution is to allow a DAO to split into two. If an individual, or a group of token holders, disagree with a proposal and want to retrieve their portion of the ether before the proposal gets executed, they can submit and approve a special type of proposal to form a new DAO. The token holders that voted for this proposal can then split the DAO moving their portion of the ether to this new DAO, leaving the rest alone only able to spend their own ether.
+
 This idea originates from a blog post by Vitalik Buterin (\cite{Vitalik2015subjectivity}). 
 
-A problem this simple fix doesn't address is voter apathy: some token holders might not be actively involved in the DAO and might not follow proposals closely. An attacker could use this to their advantage. Even though the minority has the chance to retrieve their funds and split the DAO, some could be unaware of the situation and fail to act. For the DAO to be considered safe, it is required that inactive token holders must also be protected from losing their tokens. Our proposed solution is implemented by limiting each individual DAO to a single service provider. This service provider controls the only account that can receive ether from the DAO, across all proposals. In addition, the service provider can build a “whitelist” of addresses that the DAO is allowed to send funds to. This gives the service provider of the DAO considerable power. To prevent the abuse of this power, it is possible for the DAO to vote for a new service provider, which may result in a split of the DAO as described above. 
+A problem this simple fix doesn't address is voter apathy: some token holders might not be actively involved in their DAO and might not follow proposals closely.
+An attacker could use this to their advantage. Even though the minority has the chance to retrieve their funds and split the DAO, some could be unaware of the situation and fail to act.
+For a DAO to be considered safe, it is required that inactive token holders must also be protected from losing their ether. Our proposed solution is implemented by limiting each individual DAO to a single Curator.
+This Curator controls the list of addresses that can receive ether from the DAO, across all proposals.
+This gives the Curator of a DAO considerable power. To prevent the abuse of this power, it is possible for a DAO to vote for a new Curator, which may result in a split of the DAO as described above. 
 
-Any token holder can make a proposal to vote for a new service provider. In effect, even a single token holder is able to both retrieve their remaining portion of ether and maintain their right to any future rewards associated to their previous contribution, as these will be sent to the new DAO automatically. Rewards are defined as any ether received by the DAO generated from products the DAO funded so far and are explained in further detail in section \ref{RewardToken}.
+Any token holder can make a proposal to vote for a new Curator. In effect, even a single token holder is able to both retrieve their remaining portion of ether and maintain their right to any future rewards associated to their previous contribution, as these will be sent to the new DAO automatically. Rewards are defined as any ether received by a DAO generated from products the DAO funded so far and are explained in further detail in section \ref{RewardToken}.
 
-The process of choosing a new service provider is as follows:
-Any token holder can submit a proposal for a new service provider. In this case, no proposal deposit is required, because an attacker could vote for an extremely high deposit, preventing any splits. The debating period for this proposal is $10$ days.
-This is $4$ days less than the minimum required for regular proposals, allowing anyone to retrieve their funds before a potentially malicious proposal goes through. There is no quorum requirement, so that every token holder has the ability to split into their own DAO. 
-The debating period is used to discuss (on or off-chain) the new service provider and conduct a first vote that's non-binding. After this first vote, token holders can cast a second one to confirm its results. In the case a majority opts to  keep the original service provider, the minority can either change their vote to keep the original service provider in order to avoid a split, or inversely they can confirm their vote for a new service provider and move their portion of the funds to a new DAO.
+The process of choosing a new Curator is as follows:
+Any token holder can submit a proposal for a new Curator. In this case, no proposal deposit is required, because an attacker could vote for an extremely high deposit, preventing any splits. The debating period for this proposal is $7$ days.
+This is $7$ days less than the minimum required for regular proposals, allowing anyone to retrieve their funds before a potentially malicious proposal goes through. There is no quorum requirement, so that every token holder has the ability to split into their own DAO. 
+The debating period is used to discuss (on or off-chain) the new Curator and conduct a first vote that's non-binding. After this first vote, token holders can confirm its results or not. In the case a majority opts to  keep the original Curator, the minority can either keep the original Curator in order to avoid a split, or inversely they can confirm their vote for a new Curator and move their portion of the ether to a new DAO.
 
 \section{Token Price} \label{TokenPrice}
-DAO Token price increases over time.  This reflects an assumption that early purchasers have greater risk, as they may have less information about the potential success of the DAO and do not know whether follow-on contribution will lead to full funding of the DAO.  
-For the DAO described here, we have chosen the following price schedule:
+DAO Token Creation rate decreases over time. This reflects an assumption that early acts of DAO Creation have greater risk, as they may have less information about the potential success of the DAO and do not know whether what contribution will lead to full funding of the DAO. 
+The DAO described in this paper has the following Creation schedule:
 \begin{equation}
  P(t) = \begin{cases}
-0.01 & \text{if} \quad t < t_c - 2 \cdot \text{w} \\
-0.01 + 0.0005 \cdot m(t) & \text{if} \quad t_c - 2 \cdot \text{w} \leqslant t < t_c - 4 \cdot \text{d} \\
-0.015 & \text{otherwise}
+1 & \text{if} \quad t < t_c - 2 \cdot \text{w} \\
+1 + 0.05 \cdot m(t) & \text{if} \quad t_c - 2 \cdot \text{w} \leqslant t < t_c - 4 \cdot \text{d} \\
+1.5 & \text{otherwise}
 \end{cases}
 \end{equation}
 with the multiplier $m$ defined as:
@@ -138,19 +146,19 @@ with the multiplier $m$ defined as:
  m(t) = (t - (t_c - 2 \cdot \text{w})) / \text{d}
 \end{equation}
 Here $t$ is the unix time in seconds, $t_c$ is the closing time of the funding period (see \ref{app:TokenSale} \verb|closingTime|), $w$ is a week in seconds and $d$ a day in seconds.
-Hence the number of tokens (in it’s base unit) each buyer receives is calculated as: $P(t) \cdot \Xi_c$. Here $\Xi_c$ stands for the amount of ether payed, denoted in wei.
-This results in a constant price in the beginning, until $2$ weeks before the end of the token sale. At this time the price increased daily by $0.005 \: \Xi_c$ per base unit of DAO token. Until $4$ days before the closing time when there will be a constant price of $0.015 \: \Xi_c$ per base unit of DAO token.
+Hence the number of tokens (in its base unit) each buyer Creates is calculated as: $P(t) \cdot \Xi_c$. Here $\Xi_c$ stands for the amount of ether sent to fuel a DAO, denoted in wei.
+This results in a constant Creation rate in the beginning, until $2$ weeks before the end of the DAO Creation Phase. At this time the amount of ether required to Create DAO tokens increases daily by $0.05 \: \Xi_c$ per base unit of DAO token. Until $4$ days before the closing time when there will be a constant Creation rate of $1.5 \: \Xi_c$ per base unit of DAO token.
 
-Price increases during the initial funding period could lead to a situation where a single contributor, having bought tokens during the initial price, could split the DAO immediately after the sale ends, thereby receiving more ether than they put in due to other contributors paying a higher price (\cite{GriffDiscussion}).
-In order to avoid that possibility, all ether that is payed above the initial price of the token, will be sent to an extra account. Denoted as \verb|extraBalance| in \ref{app:TokenSale}. This money can be sent back to the DAO through a proposal after the DAO has spent at least this amount of ether.
+Creation rate decreases during the Creation Phase could lead to a situation where a single contributor, having Created DAO tokens at the initial Creation rate, could split the DAO immediately after the Creation Phase ends, thereby receiving more ether than they put in due to other contributors having fueled a DAO at a higher Creation rate (\cite{GriffDiscussion}).
+In order to avoid that possibility, all ether that is used to fuel a DAO above the initial Creation rate, will be sent to an extra account. Denoted as \verb|extraBalance| in \ref{app:TokenSale}. This ether can be sent back to the DAO through a proposal after the DAO has spent at least this amount of ether.
 This rule is implemented in the internal function \verb|isRecipientAllowed| in section \ref{DAO}.
 
 \section{Contracts}
 This section will detail the smart contracts implementing the aforementioned concept. The contracts are written in the programming language Solidity (\cite{ReitwiessnerWoodSolidity}).
-Each contract has member variables and functions which can be externally called by sending a transaction to the Ethereum network with the DAO contract address as the recipient and the method ID (optional with parameters) as data. In this section we will discuss the meaning of the variables and the functions in detail.
+Each contract has member variables and functions which can be externally called by sending a transaction to the Ethereum network with the DAO contract address as the recipient and the method ID (optional with parameters) as data. This section will discuss the meaning of the variables and the functions in detail.
 
 The main contract is called 'DAO'. It defines the inner workings of the DAO and it derives the member variables and functions from 'Token' and 'TokenSale'. ‘Token’ defines the inner workings of the DAO Token and ‘TokenSale’ defines how the DAO token is purchased for ether. In addition to these three contracts, there is the 'ManagedAccount' contract, which acts as a helper contract to store the rewards which are to be distributed to the token holders and the \verb|extraBalance| (see section \ref{TokenPrice}).
-The contract 'SampleOffer' (\ref{app:SampleOffer}) is an example of what a proposal from the service provider to the DAO could look like.
+The contract 'SampleOffer' (\ref{app:SampleOffer}) is an example of what a proposal from a contractor to the DAO could look like.
 \end{multicols}
 
 \subsection{Token}
@@ -198,7 +206,7 @@ The event \verb|Approval| is used to inform lightweight clients about changes in
 contract TokenSaleInterface {
     uint public closingTime;   
     uint public minValue;  
-    bool public isFunded;   
+    bool public isFueled;
     address public privateSale;
     ManagedAccount extraBalance;
     mapping (address => uint256) weiGiven;
@@ -216,29 +224,32 @@ contract TokenSaleInterface {
 \begin{multicols}{2}
 Above is the interface of the \verb|TokenSale| contract (\ref{app:TokenSale}). 
 
-The integer \verb|closingTime| is the (unix) time at which the token sale ends.
+The integer \verb|closingTime| is the (unix) time at which the Creation Phase ends.
 
 The integer \verb|minValue| is the number of wei which are needed to be received by the DAO in order to get funded.
 
-The boolean \verb|isFunded| is true if DAO has reached its minimum funding goal, false otherwise.
+The boolean \verb|isFueled| is true if DAO has reached its minimum fueling goal, false otherwise.
 
-The address \verb|privateSale| is used for DAO splits - if it is set to 0, then it is a public sale, otherwise, only the address stored in \verb|privateSale| is allowed to purchase tokens.
+The address \verb|privateSale| is used for DAO splits - if it is set to 0, then it is a public Creation, otherwise, only the address stored in \verb|privateSale| is allowed to purchase tokens.
 
-The managed account (\ref{app:ManagedAccount}) \verb|extraBalance| is used to hold the excess ether which is received after the token price is increased during the sale. Anything that has been paid above the initial price goes to this account.
+The managed account (\ref{app:ManagedAccount}) \verb|extraBalance| is used to hold the excess ether which is received after the Creation rate is decreased during the Creation Phase. Anything that has been paid above the initial price goes to this account.
 
-The map \verb|weiGiven| stores the amount of wei given by each contributor during the sale and is only used to refund the contributors if the Token sale does not reach its funding goal.
+The map \verb|weiGiven| stores the amount of wei given by each contributor during the Creation Phase and is only used to refund the contributors if the Creation Phase does not reach its funding goal.
 
-The constructor \verb|TokenSale| initiates the token sale with the arguments \verb|minValue|, \verb|closingtime| and \verb|privateSale|, which will be set in the constructor of the DAO contract (\ref{app:DAO}) which is only executed once, when the DAO is deployed. 
+The constructor \verb|TokenSale| initiates the Creation Phase with the arguments \verb|minValue|, \verb|closingtime| and \verb|privateSale|, which will be set in the constructor of the DAO contract (\ref{app:DAO}) which is only executed once, when the DAO is deployed. 
+In order to interact with the contract the following functions can be used:
 
-The function \verb|buyTokenProxy| creates one unit of the DAO token’s minimum denomination for every wei sent. The price is calculated as $$\Xi_c \cdot 20 / \text{divisor}$$ Here $\Xi_c$ is the amount of wei given in order to purchase tokens, and \verb|divisor| is calculated depending on the time as described in section \ref{TokenPrice}.
-
+\subsubsection*{buyTokenProxy}
+This function creates one unit of the DAO token’s minimum denomination for every wei sent. The price is calculated as $$\Xi_c \cdot 20 / \text{divisor}$$ Here $\Xi_c$ is the amount of wei given in order to purchase tokens, and \verb|divisor| is calculated depending on the time: $20 / P(t)$ , as described in section \ref{TokenPrice}.
 The parameter \verb|tokenHolder| defines the receiver of the newly minted tokens. 
 
-The function \verb|refund| can be called by any contributor to recieve their wei back if the token sale failed to meet its funding goal.
+\subsubsection*{refund}
+This function can be called by any contributor to receive their wei back if the Creation Phase failed to meet its funding goal.
 
-The function \verb|divisor| is used to calculate the price of the token during the sale in the function \verb|buyTokenProxy|.
+\subsubsection*{divisor}
+This function is used to calculate the price of the token during the Creation Phase in the function \verb|buyTokenProxy|.
 
-The events \verb|FundingToDate|, \verb|SoldToken| and \verb|Refund| are used to inform lightweight clients of the status of the token sale.
+The events \verb|FundingToDate|, \verb|SoldToken| and \verb|Refund| are used to inform lightweight clients of the status of the Creation Phase.
 \end{multicols}
 
 \subsection{DAO} \label{DAO}
@@ -247,14 +258,17 @@ contract DAOInterface {
     Proposal[] public proposals;
     uint minQuorumDivisor;
     uint lastTimeMinQuorumMet;
-    uint public rewards;
+    address public curator;
     address[] public allowedRecipients;
     mapping (address => uint) public rewardToken;
     uint public totalRewardToken;
     ManagedAccount public rewardAccount;
+    ManagedAccount public DAOrewardAccount;
     mapping (address => uint) public paidOut;
+    mapping (address => uint) public DAOpaidOut;
     mapping (address => uint) public blocked;
     uint public proposalDeposit;
+    uint sumOfProposalDeposits;
     DAO_Creator public daoCreator;
 
     struct Proposal {
@@ -266,7 +280,7 @@ contract DAOInterface {
         bool proposalPassed;
         bytes32 proposalHash;
         uint proposalDeposit;
-        bool newServiceProvider;
+        bool newCurator;
         SplitData[] splitData;
         uint yea;
         uint nay;
@@ -285,14 +299,14 @@ contract DAOInterface {
     modifier onlyTokenholders {}
   
     function DAO(
-        address _defaultServiceProvider,
+        address _curator,
         DAO_Creator _daoCreator,
+        uint _proposalDeposit,
         uint _minValue,
         uint _closingTime,
         address _privateSale
     )
     function () returns (bool success);
-    function payDAO() returns(bool);
     function receiveEther() returns(bool);
     function newProposal(
         address _recipient,
@@ -300,7 +314,7 @@ contract DAOInterface {
         string _description,
         bytes _transactionData,
         uint _debatingPeriod,
-        bool _newServiceProvider
+        bool __newCurator
     ) onlyTokenholders returns (uint _proposalID);
     function checkProposalCode(
         uint _proposalID,
@@ -316,12 +330,15 @@ contract DAOInterface {
         uint _proposalID,
         bytes _transactionData
     ) returns (bool _success);
+    function emergenyCloseProposal(uint _proposalID) external;
     function splitDAO(
         uint _proposalID,
         address _newServiceProvider
     ) returns (bool _success);
-    function addAllowedAddress(address _recipient) external returns (bool _success);
+    function newContract(address _newContract);
+    function changeAllowedRecipients(address _recipient, bool _allowed) external returns (bool _success);
     function changeProposalDeposit(uint _proposalDeposit) external;
+    function retrieveDAOReward(bool _toMembers) external returns (bool _success);
     function getMyReward() returns(bool _success);
     function withdrawRewardFor(address _account) returns(bool _success);
     function transferWithoutReward(address _to, uint256 _amount) returns (bool success);
@@ -332,6 +349,7 @@ contract DAOInterface {
     ) returns (bool success);
     function halveMinQuorum() returns (bool _success);
     function numberOfProposals() constant returns (uint _numberOfProposals);
+    function getNewDAOAdress(uint _proposalID) constant returns (address _newDAO);
     function isBlocked(address _account) returns (bool);
 
     event ProposalAdded(
@@ -349,9 +367,9 @@ contract DAOInterface {
 
 \end{verbatim}
 \begin{multicols}{2}
-The original contract used as a starting point for ‘’DAO’’ was: \url{http://chriseth.github.io/browser-solidity/?gist=192371538cf5e43e6dab} as described in 
+The original contract used as a starting point for the ‘’DAO’’ was: \url{http://chriseth.github.io/browser-solidity/?gist=192371538cf5e43e6dab} as described in 
 \url{https://blog.ethereum.org/2015/12/04}. The main feature added is the splitting mechanism and all that comes with it.
-Now we will define the member variables and functions one at a time. 
+This section will define the member variables and functions from the above smart contract one at a time. 
 
 The array \verb|proposals| holds all the proposals ever made. 
 
@@ -359,23 +377,27 @@ The integer \verb|minQuorumDivisor| is used to calculate the quorum needed for a
 
 The integer \verb|lastTimeMinQuorumMet| keeps track of the last time the quorum was reached.
 
-The integer \verb|rewards| counts all the rewards which have been sent to the DAO. It gets set to zero when paid out to the \verb|rewardAccount|.
+The address \verb|curator| is set at the creation of the DAO and defines the Curator. 
 
-The address \verb|serviceProvider| is set at the creation of the DAO and defines the service provider. 
-
-The list \verb|allowedRecipients| is commonly referred to as ‘’the whitelist.’’ The DAO can only send transactions to itself, the \verb|serviceProvider|, \verb|rewardAccount|, \verb|extraBalance| and addresses in the whitelist. Only the \verb|serviceProvider| can add addresses to the whitelist. 
+The list \verb|allowedRecipients| is commonly referred to as ‘’the whitelist.’’ The DAO can only send transactions to itself, the \verb|curator|, \verb|extraBalance| and addresses in the whitelist. Only the \verb|curator| can add/remove addresses to/from the whitelist. 
 
 The map \verb|rewardToken| tracks the addresses that are owed rewards generated by the products of the DAO. Those addresses can only be DAOs.
 
 The integer \verb|totalRewardToken| tracks the amount of reward tokens in existence.
 
-The variable \verb|rewardAccount| is of the type \verb|ManagedAccount| , which will be discussed in \ref{app:ManagedAccount}. It is used to manage the rewards which are to be distributed to the DAO Token Holders and reward token holders.
+The variable \verb|rewardAccount| is of the type \verb|ManagedAccount| , which will be discussed in \ref{app:ManagedAccount}. It is used to manage the rewards which are to be distributed to the DAO Token Holders.
+
+Similar, \verb|DAOrewardAccount| is also of the type \verb|ManagedAccount|. This account is used to receive all rewards from projects funded by the DAO. It will then redistribute them amongst all splitted DAOs as well as itself using the function \verb|retrieveDAOReward|.
 
 The map \verb|paidOut| is used to keep track how much wei a single token holder has already retrieved from \verb|rewardAccount|. 
 
-The map \verb|blocked| stores the addresses of the DAO Tokens that have voted and therefore are not allowed to be transferred until the vote has concluded.. The address points to the proposal ID.
+Similar, the map \verb|DAOpaidOut| is used to keep track how much a single DAO has already received from \verb|DAOrewardAccount|.
 
-The integer \verb|proposalDeposit| specifies the minimum deposit to be paid in wei for any proposal that does not include a change in service providers.
+The map \verb|blocked| stores the addresses of the DAO Tokens that have voted and therefore are not allowed to be transferred until the vote has concluded. The address points to the proposal ID.
+
+The integer \verb|proposalDeposit| specifies the minimum deposit to be paid in wei for any proposal that does not include a change of the Curator.
+
+The integer \verb|sumOfProposalDeposits| is the sum of all proposal deposits of open proposals.
 
 The contract \verb|daoCreator| is used to create a new DAO with the same code as this DAO, used in the case of a split.
 
@@ -388,11 +410,11 @@ A single proposal has the parameters:
  \item[open] A boolean which is false if the votes have already been counted, true otherwise.
  \item[proposalPassed] A boolean which is true if a quorum has been achieved with the majority approving the proposal.
  \item[proposalHash] A hash to check validity of a proposal. Equal to \verb|sha3(_recipient, _amount, _transactionData)|.
- \item[proposalDeposit] The minimum deposit (in wei) the creator of a proposal is required to send to submit a proposal. It is taken from the \verb|msg.value| of a \verb|newProposal| call; its purpose is to prevent spam. It is set to $20$ ether by default but the creator of the proposal can send any amount above this for the deposit.For Slock.it’s purposes, the proposals will be sorted by the proposal deposit in the GUI, so in the case that a proposal is considered important, the creator of the proposal can deposit extra ether to “advertise” their proposal. The creator of the proposal will be refunded the entire deposit if quorum is reached, if it is not reached the deposit remains with the DAO. 
- \item[newServiceProvider] A boolean which is true if this proposal assigns a new service provider.
- \item[splitData] The data used to split the DAO. This data is gathered from proposals when they require a new service provider.
+ \item[proposalDeposit] The deposit (in wei) the creator of a proposal has send to submit a proposal. It is taken from the \verb|msg.value| of a \verb|newProposal| call; its purpose is to prevent spam. Its minimal value is set when the contract is deployed as constructor parameter. But the creator of the proposal can send any amount above this for the deposit. The proposals will be sorted by the proposal deposit in the GUI, so in the case that a proposal is considered important, the creator of the proposal can deposit extra ether to “advertise” their proposal. The creator of the proposal will be refunded the entire deposit if quorum is reached, if it is not reached the deposit remains with the DAO. 
+ \item[newCurator] A boolean which is true if this proposal assigns a new Curator.
+ \item[splitData] The data used to split the DAO. This data is gathered from proposals when they require a new Curator.
  \item[yea] Number of tokens in favor of the proposal.
- \item[nay] Number of tokens in opposed to the proposal.
+ \item[nay] Number of tokens opposed to the proposal.
  \item[votedYes] Simple mapping to check if a token holder has voted for it.
  \item[votedNo] Simple mapping to check if a token holder has voted against it.
  \item[creator] The address of the token holder that created the proposal.
@@ -408,28 +430,29 @@ The split data structure is used to split the DAO. It contains:
 
 Those are all the member variables which are stored in this smart contract on the blockchain. This information can at any time be read from the blockchain using an Ethereum client.
 
-We will now discuss the functions of the DAO contract in detail. Many of the member variables that are used in this contract are defined in one of the other three contracts. 
+This section will discuss the functions of the DAO contract in detail. Many of the member variables that are used in this contract are defined in one of the other three contracts. 
 
-There is a special function which is called the constructor. It has the same name as the contract ``DAO''. This function is only executed once, when the DAO is created.
+There is a special function which is called the constructor. It has the same name as the contract ``DAO.'' This function is only executed once, when the DAO is created.
 In the DAO constructor, the following variables are set:
 \begin{itemize}
- \item \verb|serviceProvider|
+ \item \verb|curator|
  \item \verb|daoCreator|
  \item \verb|proposalDeposit|
- \item \verb|rewardAccount| 
+ \item \verb|rewardAccount|
+ \item \verb|DAOrewardAccount|
  \item \verb|minValue|
  \item \verb|closingTime|
  \item \verb|privateSale|
+ \item \verb|lastTimeMinQuorumMet|
+ \item \verb|minQuorumDivisor|
+ \item \verb|allowedRecipients|
 \end{itemize}
 
 In order to interact with the smart contract the following functions are used:
 
 \subsubsection*{fallback function}
 The fallback function is a function without a specific name. It is called when the contract receives a transaction without data (a pure value transfer). There are no direct arguments for this function.
-The fallback function will call \verb|buyTokenProxy| passing the address of the sender as an argument during the token sale. This will trigger the immediate purchase of tokens. In order to protect users, this function will send the ether received after the end of the sale back to the sender for a time period of $40$ days. After which this function is repurposed to receive ether as simple deposit to the DAO using the function \verb|receiveEther|.
-
-\subsubsection*{payDAO}
-This function is used to receive and track the rewards generated by the products funded by the DAO and returns true when ether has been added to \verb|rewards|. In the context of Slock.it, these will be the rewards generated when Slocks are deployed or used.
+The fallback function will call \verb|buyTokenProxy| passing the address of the sender as an argument during the Creation Phase. This will trigger the immediate purchase of tokens. In order to protect users, this function will send the ether received after the end of the Creation Phase back to the sender for a time period of $40$ days. After which this function is repurposed to receive ether as simple deposit to the DAO using the function \verb|receiveEther|.
 
 \subsubsection*{receiveEther}
 A simple function used to receive ether. It does nothing but return true when the DAO receives ether.
@@ -437,12 +460,12 @@ A simple function used to receive ether. It does nothing but return true when th
 \subsubsection*{newProposal}
 This function is used to create a new proposal. The arguments of the function are:
 \begin{description}
- \item[recipient] The address of the recipient of the ether in the proposal (has to be the DAO address itself, the current service provider or an address on the whitelist \verb|allowedRecipients|).
+ \item[recipient] The address of the recipient of the ether in the proposal (has to be the DAO address itself, the current Curator or an address on the whitelist \verb|allowedRecipients|).
  \item[amount] The amount of wei to be sent in the proposed transaction.
  \item[description] A string describing the proposal.
  \item[transactionData] The data of the proposed transaction.
- \item[debatingPeriod] The amount of time to debate the proposal, at least 2 weeks for a normal proposal and at least 10 days for a new service provider proposal.
- \item[newServiceProvider] A boolean defining whether this proposal is for a new service provider or not.
+ \item[debatingPeriod] The amount of time to debate the proposal, at least 2 weeks for a normal proposal and at least 1 week for a new Curator proposal.
+ \item[newCurator] A boolean defining whether this proposal is for a new Curator or not.
 \end{description}
 After checking the sanity of the proposal (see code), this function creates a proposal which is open for voting for a certain amount of time. The function will return a proposal ID which is used to vote.
 
@@ -463,10 +486,10 @@ This function is used to vote on a proposal. The arguments of the function are:
  \item[proposalID] The proposal ID.
  \item[supportsProposal]  A boolean Yes/No does the DAO token holder support the proposal
 \end{description}
-The function simply checks whether the sender has yet to vote and whether the proposal is still open for voting. If both requirements are met, it records the vote in the storage of the contract. The tokens used to vote will be blocked, meaning they can not be transferred until the proposal is closed.This is to avoid voting several times with different sender addresses.
+The function simply checks whether the sender has yet to vote and whether the proposal is still open for voting. If both requirements are met, it records the vote in the storage of the contract. The tokens used to vote will be blocked, meaning they can not be transferred until the proposal is closed. This is to avoid voting several times with different sender addresses.
 
 \subsubsection*{executeProposal}
-This function can be called by anyone. It counts the votes, in order to check whether the quorum is met, and executes the proposal if it passed, unless it is a proposal for a new service provider, than it does nothing.
+This function can be called by anyone. It counts the votes, in order to check whether the quorum is met, and executes the proposal if it passed, unless it is a proposal for a new Curator, than it does nothing.
 The arguments of the function are:
 \begin{description}
  \item[proposalID] The proposal ID.
@@ -475,12 +498,14 @@ The arguments of the function are:
 The function checks whether the voting deadline has passed and that the \verb|transactionData| matches the proposal ID. Then it checks whether the quorum has been met (see Eq. \ref{minQuorum}) and if the proposal had a majority of support. If this is the case, it executes the proposal and refunds the 
 proposal deposit. If the quorum has been achieved, but the proposal was declined by the majority of the voters, the proposal deposit is refunded and the proposal closes.
 
+\subsubsection*{emergenyCloseProposal}
+This is used in the case `executeProposal` fails because it throws (e.g. when returuning the deposit, because the fallback function of this address throws, or when executing the proposed transaction). It can be called $5$ days after the voting deadline of the proposal passed. It will close the proposal.
 \subsubsection*{splitDAO}
-After a new service provider has been proposed, and the debating period in which the token holders could vote for or against the proposal has passed, this function is called by each of the DAO token holders that want to leave the current DAO and move to a new DAO with the proposed new service provider. This function creates a new DAO and moves a portion of the ether, as well as a portion of the reward tokens to the new DAO.
+After a new Curator has been proposed, and the debating period in which the token holders could vote for or against the proposal has passed, this function is called by each of the DAO token holders that want to leave the current DAO and move to a new DAO with the proposed new Curator. This function creates a new DAO and moves a portion of the ether, as well as a portion of the reward tokens to the new DAO.
 The arguments are:
 \begin{description}
  \item[proposalID] The proposal ID.
- \item[newServiceProvider] The address of the new service provider of the new DAO.
+ \item[newCurator] The address of the new Curator of the new DAO.
 \end{description}
 After a sanity check (see code), this function will create the new DAO if it hasn’t already been created using the contract \verb|daoCreator|, updates the split data stored in the proposal and stores the address of the new DAO in the split data.
 This function moves the portion of ether that belongs to the caller of this function in the original DAO to the new DAO. This ether amount is denoted by $\Xi_{\text{sender}}$, stated in wei and is calculated as follows:
@@ -494,14 +519,17 @@ They are calculated as follows:
 \begin{equation}
  R_{\text{sender}} = R_{\text{DAO}} \cdot T_{\text{sender}} / T_{\text{total}}
 \end{equation}
-Where $R_{\text{DAO}}$ is the amount of reward tokens owned by the original DAO at the time of the split. These tokens allow the new DAO to retrieve their portion of the reward using the \verb|getMyReward| function of the original DAO.
-At the end of this process all original DAO tokens of the sender account are destroyed.
+Where $R_{\text{DAO}}$ is the amount of reward tokens owned by the original DAO at the time of the split. These tokens allow the new DAO to retrieve their portion of the reward using the \verb|retrieveDAOReward| function of the original DAO.
+At the end of this process all original DAO tokens of the sender account are destroyed. It is important to notice that in all integer division descirbed above, there may be remainders which stay with the DAO.
+
+\subsubsection*{newContract}
+This function can only be called by the DAO itself (through a proposal and a vote) and is used to move all remaining ether, as well as all rewardTokens to a new address. This is used to update the contract. The new address needs to be approved by the Curator.
 
 \subsubsection*{transfer and transferFrom}
 These functions overload the functions defined in the \verb|Token| contract. They do call \verb|transfer / transferFrom| function in the \verb|Token| contract, but they additionally transfer information about the already paid out rewards attached to the tokens being transferred using the \verb|transferPaidOut| function. 
 
 \subsubsection*{transferPaidOut}
-This function is called to when making any transfer of DAO tokens using \verb|transfer| or \verb|transferFrom| and it updates the array \verb|paidOut| to track the amount of rewards which has been paid out already, $P$, and is calculated as follows:
+This function is called when making any transfer of DAO tokens using \verb|transfer| or \verb|transferFrom| and it updates the array \verb|paidOut| to track the amount of rewards which has been paid out already, $P$, and is calculated as follows:
 \begin{equation}
  P = P_{\text{from}} \cdot T_{\text{amount}} / T_{\text{from}}
 \end{equation}
@@ -514,19 +542,18 @@ The same as \verb|transfer| and \verb|transferFrom|, but it calls \verb|getMyRew
 Calls \verb|withdrawRewardFor| with the sender as the parameter. This is used to withdraw the portion of the rewards which belong to the sender from the \verb|rewardAccount|.
 
 \subsubsection*{withdrawRewardFor}
-This function is used to retrieve the portion of the rewards in the \verb|rewardAccount| which belong to address given in the parameter.
-Their portion of the reward tokens $S$ is calculated as follows:
-\begin{equation}
- S = R_{\text{DAO}} \cdot T_{\text{sender}} / T_{\text{total}} + R_{\text{sender}}
-\end{equation}
-Here $R_{\text{DAO}}$ is the amount of reward tokens owned by the DAO, and $T_{\text{sender}}$ the amount of DAO tokens which are directly owned by the sender. $R_{\text{sender}}$ will always be zero except in the case that the sender is a DAO that has split from the original DAO and owns their own reward tokens from the split.
+This function is used to retrieve the portion of the rewards in the \verb|rewardAccount| which belong to the address given as a parameter.
 The amount of ether $\Xi_{\text{reward}}$ which is then sent to the DAO token holder that calls this function is:
 \begin{equation}
-\Xi_{\text{reward}} = \Xi_{\text{rewardAccount}} \cdot S / R_{\text{total}} - \Xi_{\text{paidOut[sender]}}
+\Xi_{\text{reward}} = T_{\text{sender}} \cdot \Xi_{\text{rewardAccount}} / T_{\text{total}} - \Xi_{\text{paidOut[sender]}}
 \end{equation}
-Here $\Xi_{\text{rewardAccount}}$ is the total rewards ever received by the \verb|rewardAccount|, $R_{\text{total}}$ is the total amount of reward tokens that have ever been created, regardless of splits (\verb|totalRewardToken|) and $\Xi_{\text{paidOut[sender]}}$ is the total amount of wei which has already been paid out to the DAO token holder calling the function. The reward tokens are further elaborated in section \ref{split}.
-\subsubsection*{addAllowedAddress}
-This function adds an address to the whitelist, \verb|allowedRecipients|. It can only be executed by the service provider.
+Here $\Xi_{\text{rewardAccount}}$ is the total rewards ever received by the \verb|rewardAccount| and $\Xi_{\text{paidOut[sender]}}$ is the total amount of wei which has already been paid out to the DAO token holder address, which is given as a parameter. The reward tokens are further elaborated in section \ref{split}.
+
+\subsubsection*{retrieveDAOReward}
+This function, when called by a DAO, sends the rewards which belong to this DAO from \verb|DAOrewardAccount| to either the DAO itself, or to the \verb|rewardAccount| of the respective DAO in order to be distributed among its token holders, depending on the parameter \verb|_toMembers|.
+
+\subsubsection*{changeAllowedRecipients}
+This function can add/remove an address to/from the whitelist, \verb|allowedRecipients|. It can only be executed by the Curator.
 
 \subsubsection*{halveMinQuorum}
 When called, halves the minimum quorum in the case it has not been met for over 52 weeks, by doubling \verb|minQuorumDivisor|.
@@ -534,8 +561,11 @@ When called, halves the minimum quorum in the case it has not been met for over 
 \subsubsection*{numberOfProposals}
 Returns the total number of proposals ever created.
 
+\subsubsection*{getNewDAOAdress}
+This is just a helper function to read the address of a newly created `split DAO`. It gets the proposal ID which was used for the split as input parameter and returns the address of the new DAO.
+
 \subsubsection*{isBlocked}
-This function returns true when the address given as parameter is currently blocked to transfer tokens due to an ongoing vote it has participated in, otherwise it returns false.
+This function returns true when the address given as parameter is currently blocked to transfer tokens due to an ongoing vote it has participated in, otherwise it returns false. It also unblocks the tokens in the case the voting deadline of the proposal is over.
 
 \subsubsection*{changeProposalDeposit}
 This function changes the parameter \verb|proposalDeposit|. It can only be called by the DAO through a transaction which was proposed and voted for by a majority of the token holders.
@@ -567,15 +597,20 @@ The function \verb|payOut| can only be executed by the \verb|owner| (in our case
 
 \section{Reward Tokens} \label{RewardToken}
 
-In this section we give a description of how reward tokens are implemented in this contract. Much of the information has already been explained, but it is restated here for clarity. 
+This section gives a description of how reward tokens are implemented in this contract. Much of the information has already been explained, but it is restated here for clarity. 
 
-Reward tokens are used to divide the ether sent to \verb|rewardAccount| amongst the various DAOs that own reward tokens. Reward tokens are only transferred in the event of a DAO split, they can never be owned by anything other than the original DAO or a “fork” of the original DAO that generated the reward tokens.  
+Reward tokens are used to divide the ether sent to \verb|DAOrewardAccount| amongst the various DAOs that own reward tokens. Reward tokens are only transferred in the event of a DAO split or an update of the contract, they can never be owned by anything other than the original DAO or a “fork” of the original DAO that generated the reward tokens. 
 
-Reward tokens are generated when the DAO makes any transaction spending ether (with the exception of sending ether to the \verb|rewardAccount|). When the DAO’s products send ether back to the DAO (for example when a Slock sends $1\%$ of a transaction to the DAO), the ether is held with the rest of the ether that the DAO has, but \verb|rewards| counts all the ether which has been received as rewards. The DAO can use these rewards to fund new proposals or to equally distribute the rewards to the reward token holders (using a proposal which gets voted on by the DAO token holders). Then the token holders of the DAOs that hold reward tokens will be able to claim the ether they have earned for their contribution to the original DAO that issued the reward token. To do this the DAO will send the accumulated rewards to the \verb|rewardAccount| which is held in the \verb|ManagedAccount| contract. Then and only then will the token holders of the DAOs that hold reward tokens be able to call the \verb|getMyReward| function and receive their ether. These payouts are tracked by the map \verb|paidOut| which keeps track of which DAOs hold reward tokens and whether they have claimed their portion of the rewards, and which of the original DAO token holders have claimed their fair portion of the rewards.This process guarantees that any DAO token holder whose ether was spent building a product will receive the rewards promised to them from that product even if they decide to split from the DAO.  
+Reward tokens are generated when the DAO makes any transaction spending ether. When the DAO’s products send ether back to the DAO, the ether is held within \verb|DAOrewardAccount|. The DAO can use these rewards to fund new proposals or to fairly distribute the rewards to the reward token holders (using a proposal which gets voted on by the DAO token holders).
+
+Then the token holders of the DAOs will be able to claim the ether they have earned for their contribution to the original DAO that issued the reward token. To do this the DAO retrieve its rewards by callling the \verb|retrieveDAOReward| function, with the paramter \verb|_toMembers| set to true, which send the rewards to the \verb|rewardAccount| (a \verb|ManagedAccount| contract) and keeps track of the payouts in \verb|DAOpaidOut|.
+Then and only then will the token holders of the DAOs be able to call the \verb|getMyReward| function and receive their ether.
+
+These payouts are tracked by the map \verb|paidOut| which keeps track of which token holders have claimed their fair portion of the rewards. This process guarantees that any DAO token holder whose ether was spent building a product will receive the rewards promised to them from that product even if they decide to split from the DAO. 
 
 \section{Split} \label{split}
 
-In this section we want to formally describe some parameters and their behavior during a split.
+This section formally describes a few important parameters and their behavior during a split.
 
 The total amount of DAO tokens \verb|totalSupply| is defined as follows:
 \begin{equation}
@@ -589,7 +624,7 @@ Similarly, the amount of reward tokens $R_{\text{total}}$ is defined as follows:
 For every passed proposal that sends ether out of the DAO, an amount of reward tokens equal to the amount being spent (in wei) is created.
 
 
-Let’s assume that during the split, a fraction of DAO tokens, $X$, changes service providers and leaves the DAO. The new DAO created receives $X \cdot \Xi_{\text{DAO pre}}$, a portion of the remaining ether from the original DAO.
+Let’s assume that during the split, a fraction of DAO tokens, $X$, changes the Curator and leaves the DAO. The new DAO created receives $X \cdot \Xi_{\text{DAO pre}}$, a portion of the remaining ether from the original DAO.
 \begin{equation}
  \Xi_{\text{DAO post}} = (1 - X) \cdot \Xi_{\text{DAO pre}}
 \end{equation}
@@ -606,7 +641,7 @@ Here $R_{\text{DAO}}$ is the amount of reward tokens owned by the DAO (prior to 
 The number of reward tokens owned by the new DAO are denoted by $R_{\text{newDAO}}$.
 The total amount of reward tokens $R_{\text{total}}$ stays constant during the split, no reward tokens are ever destroyed.
 
-The original DAO tokens of the accounts that confirmed the new service provider are destroyed.
+The original DAO tokens of the accounts that confirmed the new Curator are destroyed.
 Hence:
 \begin{equation}
  T_{\text{total post}}= (1 - X) \cdot T_{\text{total pre}}
@@ -617,8 +652,10 @@ This process allows DAO token holders to retrieve their ether from the DAO at an
 \section{Updates}
 Although the code of the contract specified at a certain address in the Ethereum blockchain can not be changed, there might still be a need for a single member or the DAO as a whole to change the contracts.
 Every single member can always split the DAO as described above and move their funds to a new DAO. From there they can move their funds to another new DAO with a new smart contract.
-But in order to use a new code for the complete DAO one can simply create a new DAO contract with all the needed features and deploy it on the blockchain, and make a proposal to send all the ether in the old DAO to this contract.
-If accepted, the complete DAO moves to the new contract. In order to use the same underlying DAO tokens there, one can use the \verb|approve| function and give the new DAO the right to move the tokens. In the new contract this right should only be usable in restricted functions which are only callable by the owner of the tokens. This process allows for the DAO to maintain static immutable code on the Ethereum blockchain, while still being able to be updated if the need arises.
+But in order to use a new code for the complete DAO one can simply create a new DAO contract with all the needed features and deploy it on the blockchain, and make a proposal to call the \verb|newContract| function with the address of the new contract as parameter.
+If accepted, the complete DAO moves to the new contract, meaning, all ether and reward tokens are transferred to the new contract. In order to use the same underlying DAO tokens there, one can use the \verb|approve| function and give the new DAO the right to move the tokens. In the new contract this right should only be usable in restricted functions which are only callable by the owner of the tokens.
+Another option is to create new tokens in the new contract based on the token distribution in the old contract. This can also be achieved by a proof that the old tokens are destroyed (sending to the $0$ address).
+This process allows for the DAO to maintain static immutable code on the Ethereum blockchain, while still being able to be updated if the need arises.
 
 \section{Acknowledgements}
 I want to thank Stephan Tual and Simon Jentzsch for fruitful discussions and corrections, as well as Gavin Wood and Christian Reitwiessner for a review of the contracts and the development of Solidity, the programing language used to write the contracts.
@@ -748,37 +785,45 @@ contract Token is TokenInterface {
 \subsection{TokenSale}\label{app:TokenSale}
 \begin{verbatim}
 contract TokenSaleInterface {
-    
+
     // End of token sale, in Unix time
-    uint public closingTime;   
-    // Minimum funding goal of the token sale, denominated in tokens
-    uint public minValue;  
-    // True if the DAO reached its minimum funding goal, false otherwise
-    bool public isFunded;   
+    uint public closingTime;
+    // Minimum fueling goal of the token sale, denominated in ether
+    uint public minValue;
+    // True if the DAO reached its minimum fueling goal, false otherwise
+    bool public isFueled;
     // For DAO splits - if privateSale is 0, then it is a public sale, otherwise
     // only the address stored in privateSale is allowed to purchase tokens
     address public privateSale;
     // hold extra ether which has been paid after the DAO token price has increased
-    ManagedAccount extraBalance;
+    ManagedAccount public extraBalance;
     // tracks the amount of wei given from each contributor (used for refund)
     mapping (address => uint256) weiGiven;
-    
-    /// @dev Constructor setting the minimum funding goal and the 
+
+    /// @dev Constructor setting the minimum fueling goal and the
     /// end of the Token Sale
-    /// @param _minValue Token Sale minimum funding goal
+    /// @param _minValue Token Sale minimum fueling goal
     /// @param _closingTime Date (in Unix time) of the end of the Token Sale
+    /// @param _privateSale Zero means that the sale is public.  A non-zero
+    /// address represents the only address that can buy Tokens (the address
+    /// can also buy Tokens on behalf of other accounts)
     // This is the constructor: it can not be overloaded so it is commented out
-    //  function TokenSale(uint _minValue, uint _closingTime);
+    //  function TokenSale(
+        //  uint _minValue,
+        //  uint _closingTime,
+        //  address _privateSale
+    //  );
 
     /// @notice Buy Token with `_tokenHolder` as the initial owner of the Token
-    /// @param _tokenHolder The address of the Tokens's recipient 
+    /// @param _tokenHolder The address of the Tokens's recipient
+    /// @return Whether the purchase was successful
     function buyTokenProxy(address _tokenHolder) returns (bool success);
 
-    /// @notice Refund `msg.sender` in the case the Token Sale didn't reach its 
-    /// minimum funding goal
+    /// @notice Refund `msg.sender` in the case the Token Sale didn't reach its
+    /// minimum fueling goal
     function refund();
 
-    /// @return the divisor used to calculate the token price during the sale
+    /// @return The divisor used to calculate the token price during the sale
     function divisor() returns (uint divisor);
 
     event FundingToDate(uint value);
@@ -796,16 +841,17 @@ contract TokenSale is TokenSaleInterface, Token {
     }
 
     function buyTokenProxy(address _tokenHolder) returns (bool success) {
-        if (now < closingTime && msg.value > 0 
-        && (privateSale == 0 || privateSale == msg.sender)) {
+        if (now < closingTime && msg.value > 0
+            && (privateSale == 0 || privateSale == msg.sender)) {
+
             uint token = (msg.value * 20) / divisor();
             extraBalance.call.value(msg.value - token)();
             balances[_tokenHolder] += token;
             totalSupply += token;
-            weiGiven[msg.sender] += msg.value;
+            weiGiven[_tokenHolder] += msg.value;
             SoldToken(_tokenHolder, token);
-            if (totalSupply >= minValue && !isFunded) {
-                isFunded = true;
+            if (totalSupply >= minValue && !isFueled) {
+                isFueled = true;
                 FundingToDate(totalSupply);
             }
             return true;
@@ -814,11 +860,11 @@ contract TokenSale is TokenSaleInterface, Token {
     }
 
     function refund() noEther {
-        if (now > closingTime && !isFunded) {
-            // get extraBalance - will only succeed when called for the first time
+        if (now > closingTime && !isFueled) {
+            // Get extraBalance - will only succeed when called for the first time
             extraBalance.payOut(address(this), extraBalance.accumulatedInput());
 
-            // execute refund
+            // Execute refund
             if (msg.sender.call.value(weiGiven[msg.sender])()) {
                 Refund(msg.sender, weiGiven[msg.sender]);
                 totalSupply -= balances[msg.sender];
@@ -828,16 +874,19 @@ contract TokenSale is TokenSaleInterface, Token {
         }
     }
 
-    function divisor() returns (uint divisor){
-        // the number of (base unit) tokens per wei is calculated
+    function divisor() returns (uint divisor) {
+        // The number of (base unit) tokens per wei is calculated
         // as `msg.value` * 20 / `divisor`
-        // the funding period starts with a 1:1 ratio
-        if (closingTime - 2 weeks > now) return 20;
-        // followed by 10 days with a daily price increase of 5%
-        else if (closingTime - 4 days > now)
+        // The fueling period starts with a 1:1 ratio
+        if (closingTime - 2 weeks > now) {
+            return 20;
+        // Followed by 10 days with a daily price increase of 5%
+        } else if (closingTime - 4 days > now) {
             return (20 + (now - (closingTime - 2 weeks)) / (1 days));
-        // the last 4 days there is a constant price ratio of 1:1,5
-        else return 30;
+        // The last 4 days there is a constant price ratio of 1:1.5
+        } else {
+            return 30;
+        }
     }
 }
 \end{verbatim}
@@ -845,20 +894,33 @@ contract TokenSale is TokenSaleInterface, Token {
 \begin{verbatim}
 contract DAOInterface {
 
-    // Proposals to spend the DAO's ether or to choose a new service provider
+    // The amount of days for which people who try to participate in the sale
+    // by calling the fallback function will still get their ether back
+    uint constant saleGracePeriod = 40 days;
+    // The minimum debate period that a generic proposal can have
+    uint constant minProposalDebatePeriod = 2 weeks;
+    // The minimum debate period that a split proposal can have
+    uint constant minSplitDebatePeriod = 1 weeks;
+    // Period of days inside which it's possible to execute a DAO split
+    uint constant splitExecutionPeriod = 27 days;
+    // Period of time after which the minimum Quorum is halved
+    uint constant quorumHalvingPeriod = 52 weeks;
+    // Period after which a proposal can be closed (used in the case `executeProposal`
+    // fails because it throws)
+    uint constant executeProposalPeriod = 5 days;
+
+    // Proposals to spend the DAO's ether or to choose a new Curator
     Proposal[] public proposals;
     // The quorum needed for each proposal is partially calculated by
     // totalSupply / minQuorumDivisor
     uint minQuorumDivisor;
     // The unix time of the last time quorum was reached on a proposal
     uint lastTimeMinQuorumMet;
-    // The total amount of wei received as reward that has not been sent to
-    // the rewardAccount
-    uint public rewards;
-    // Address of the service provider
-    address public serviceProvider;
-    // The whitelist: List of addresses the DAO is allowed to send money to
-    address[] public allowedRecipients;
+
+    // Address of the Curator
+    address public curator;
+    // The whitelist: List of addresses the DAO is allowed to send ether to
+    mapping (address => bool) public allowedRecipients;
 
     // Tracks the addresses that own Reward Tokens. Those addresses can only be
     // DAOs that have split from the original DAO. Conceptually, Reward Tokens
@@ -869,8 +931,16 @@ contract DAOInterface {
     uint public totalRewardToken;
 
     // The account used to manage the rewards which are to be distributed to the
-    // DAO Token Holders of any DAO that holds Reward Tokens
+    // DAO Token Holders of this DAO
     ManagedAccount public rewardAccount;
+
+    // The account used to manage the rewards which are to be distributed to
+    // any DAO that holds Reward Tokens
+    ManagedAccount public DAOrewardAccount;
+
+    // Amount of rewards (in wei) already paid out to a certain DAO
+    mapping (address => uint) public DAOpaidOut;
+
     // Amount of rewards (in wei) already paid out to a certain address
     mapping (address => uint) public paidOut;
     // Map of addresses blocked during a vote (not allowed to transfer DAO
@@ -878,20 +948,23 @@ contract DAOInterface {
     mapping (address => uint) public blocked;
 
     // The minimum deposit (in wei) required to submit any proposal that is not
-    // requesting a new service provider (no deposit is required for splits)
+    // requesting a new Curator (no deposit is required for splits)
     uint public proposalDeposit;
+
+    // the accumulated sum of all current proposal deposits
+    uint sumOfProposalDeposits;
 
     // Contract that is able to create a new DAO (with the same code as
     // this one), used for splits
     DAO_Creator public daoCreator;
 
-    // A proposal with `newServiceProvider == false` represents a transaction
+    // A proposal with `newCurator == false` represents a transaction
     // to be issued by this DAO
-    // A proposal with `newServiceProvider == true` represents a DAO split
+    // A proposal with `newCurator == true` represents a DAO split
     struct Proposal {
         // The address where the `amount` will go to if the proposal is accepted
-        // or if `newServiceProvider` is true, the proposed service provider of
-        //the new DAO).
+        // or if `newCurator` is true, the proposed Curator of
+        // the new DAO).
         address recipient;
         // The amount to transfer to `recipient` if the proposal is accepted.
         uint amount;
@@ -909,13 +982,13 @@ contract DAOInterface {
         // Deposit in wei the creator added when submitting their proposal. It
         // is taken from the msg.value of a newProposal call.
         uint proposalDeposit;
-        // True if this proposal is to assign a new service provider
-        bool newServiceProvider;
+        // True if this proposal is to assign a new Curator
+        bool newCurator;
         // Data needed for splitting the DAO
         SplitData[] splitData;
-        // Number of tokens in favour of the proposal
+        // Number of Tokens in favor of the proposal
         uint yea;
-        // Number of tokens opposed to the proposal
+        // Number of Tokens opposed to the proposal
         uint nay;
         // Simple mapping to check if a shareholder has voted for it
         mapping (address => bool) votedYes;
@@ -925,7 +998,7 @@ contract DAOInterface {
         address creator;
     }
 
-    // Used only in the case of a newServiceProvider porposal.
+    // Used only in the case of a newCurator proposal.
     struct SplitData {
         // The balance of the current DAO minus the deposit at the time of split
         uint splitBalance;
@@ -936,53 +1009,53 @@ contract DAOInterface {
         // The new DAO contract created at the time of split.
         DAO newDAO;
     }
-    // Used to restrict acces to certain functions to only DAO Token Holders
+
+    // Used to restrict access to certain functions to only DAO Token Holders
     modifier onlyTokenholders {}
 
-    /// @dev Constructor setting the default service provider and the address
+    /// @dev Constructor setting the Curator and the address
     /// for the contract able to create another DAO as well as the parameters
     /// for the DAO Token Sale
-    /// @param _defaultServiceProvider The default service provider
+    /// @param _curator The Curator
     /// @param _daoCreator The contract able to (re)create this DAO
+    /// @param _proposalDeposit The deposit to be paid for a regular proposal
     /// @param _minValue Minimal value for a successful DAO Token Sale
-    /// @param _closingTime Date (in unix time) of the end of the DAO Token Sale
+    /// @param _closingTime Date (in Unix time) of the end of the DAO Token Sale
     /// @param _privateSale If zero the DAO Token Sale is open to public, a
     /// non-zero address means that the DAO Token Sale is only for the address
     // This is the constructor: it can not be overloaded so it is commented out
     //  function DAO(
-        //  address _defaultServiceProvider,
+        //  address _curator,
         //  DAO_Creator _daoCreator,
+        //  uint _proposalDeposit,
         //  uint _minValue,
         //  uint _closingTime,
         //  address _privateSale
-    //  )
+    //  );
 
     /// @notice Buy Token with `msg.sender` as the beneficiary
+    /// @return Whether the purchase was successful
     function () returns (bool success);
 
-    /// @dev Function used by the products of the DAO (e.g. Slocks) to send
-    /// rewards to the DAO
-    /// @return Whether the call to this function was successful or not
-    function payDAO() returns(bool);
 
-    /// @dev This function is used by the service provider to send money back
+    /// @dev This function is used to send ether back
     /// to the DAO, it can also be used to receive payments that should not be
     /// counted as rewards (donations, grants, etc.)
     /// @return Whether the DAO received the ether successfully
     function receiveEther() returns(bool);
 
     /// @notice `msg.sender` creates a proposal to send `_amount` Wei to
-    ///  `_recipient` with the transaction data `_transactionData`. If
-    /// `_newServiceProvider` is true, then this is a proposal that splits the
-    /// DAO and sets `_recipient` as the new DAO's new service provider.
+    /// `_recipient` with the transaction data `_transactionData`. If
+    /// `_newCurator` is true, then this is a proposal that splits the
+    /// DAO and sets `_recipient` as the new DAO's Curator.
     /// @param _recipient Address of the recipient of the proposed transaction
     /// @param _amount Amount of wei to be sent with the proposed transaction
     /// @param _description String describing the proposal
     /// @param _transactionData Data of the proposed transaction
     /// @param _debatingPeriod Time used for debating a proposal, at least 2
-    /// weeks for a regular proposal, 10 days for new service provider proposal
-    /// @param _newServiceProvider Bool defining whether this proposal is about
-    /// a new service provider or not
+    /// weeks for a regular proposal, 10 days for new Curator proposal
+    /// @param _newCurator Bool defining whether this proposal is about
+    /// a new Curator or not
     /// @return The proposal ID. Needed for voting on the proposal
     function newProposal(
         address _recipient,
@@ -990,7 +1063,7 @@ contract DAOInterface {
         string _description,
         bytes _transactionData,
         uint _debatingPeriod,
-        bool _newServiceProvider
+        bool _newCurator
     ) onlyTokenholders returns (uint _proposalID);
 
     /// @notice Check that the proposal with the ID `_proposalID` matches the
@@ -1028,27 +1101,42 @@ contract DAOInterface {
         bytes _transactionData
     ) returns (bool _success);
 
-    /// @notice ATTENTION! I confirm to move my remaining funds to a new DAO
-    /// with `_newServiceProvider` as the new service provider, as has been
+    /// @notice close the proposal (used in the case `executeProposal`
+    /// fails because it throws)
+    /// @param _proposalID The proposal ID
+    function emergenyCloseProposal(uint _proposalID) external;
+
+
+    /// @notice ATTENTION! I confirm to move my remaining ether to a new DAO
+    /// with `_newCurator` as the new Curator, as has been
     /// proposed in proposal `_proposalID`. This will burn my tokens. This can
     /// not be undone and will split the DAO into two DAO's, with two
     /// different underlying tokens.
     /// @param _proposalID The proposal ID
-    /// @param _newServiceProvider The new service provider of the new DAO
+    /// @param _newCurator The new Curator of the new DAO
     /// @dev This function, when called for the first time for this proposal,
     /// will create a new DAO and send the sender's portion of the remaining
     /// ether and Reward Tokens to the new DAO. It will also burn the DAO Tokens
-    /// of the sender. 
+    /// of the sender.
     function splitDAO(
         uint _proposalID,
-        address _newServiceProvider
+        address _newCurator
     ) returns (bool _success);
+
+    /// @dev can only be called by the DAO itself through a proposal
+    /// updates the contract of the DAO by sending all ether and rewardTokens
+    /// to the new DAO. The new DAO needs to be approved by the Curator
+    /// @param _newContract the address of the new contract
+    function newContract(address _newContract);
+
 
     /// @notice Add a new possible recipient `_recipient` to the whitelist so
     /// that the DAO can send transactions to them (using proposals)
     /// @param _recipient New recipient address
-    /// @dev Can only be called by the current service provider
-    function addAllowedAddress(address _recipient) external returns (bool _success);
+    /// @dev Can only be called by the current Curator
+    /// @return Whether successful or not
+    function changeAllowedRecipients(address _recipient, bool _allowed) external returns (bool _success);
+
 
     /// @notice Change the minimum deposit required to submit a proposal
     /// @param _proposalDeposit The new proposal deposit
@@ -1056,14 +1144,20 @@ contract DAOInterface {
     /// recipient being this DAO itself)
     function changeProposalDeposit(uint _proposalDeposit) external;
 
+    /// @notice Move rewards from the DAORewards managed account
+    /// @param _toMembers If true rewards are move to the actual reward account
+    ///                   for the DAO. If not then it's moved to the DAO itself
+    /// @return Whether the call was successful
+    function retrieveDAOReward(bool _toMembers) external returns (bool _success);
+
     /// @notice Get my portion of the reward that was sent to `rewardAccount`
     /// @return Whether the call was successful
     function getMyReward() returns(bool _success);
 
-    /// @notice Withdraw `account`'s portion of the reward from `rewardAccount`,
-    /// to `account`'s balance
+    /// @notice Withdraw `_account`'s portion of the reward from `rewardAccount`
+    /// to `_account`'s balance
     /// @return Whether the call was successful
-    function withdrawRewardFor(address _account) returns(bool _success);
+    function withdrawRewardFor(address _account) internal returns (bool _success);
 
     /// @notice Send `_amount` tokens to `_to` from `msg.sender`. Prior to this
     /// getMyReward() is called.
@@ -1092,6 +1186,11 @@ contract DAOInterface {
     /// @return total number of proposals ever created
     function numberOfProposals() constant returns (uint _numberOfProposals);
 
+    /// @param _proposalID Id of the new curator proposal
+    /// @return Address of the new DAO
+    function getNewDAOAdress(uint _proposalID) constant returns (address _newDAO);
+
+
     /// @param _account The address of the account which is checked.
     /// @return Whether the account is blocked (not allowed to transfer tokens) or not.
     function isBlocked(address _account) returns (bool);
@@ -1101,12 +1200,12 @@ contract DAOInterface {
         uint indexed proposalID,
         address recipient,
         uint amount,
-        bool newServiceProvider,
+        bool newCurator,
         string description
     );
     event Voted(uint indexed proposalID, bool position, address indexed voter);
     event ProposalTallied(uint indexed proposalID, bool result, uint quorum);
-    event NewServiceProvider(address indexed _newServiceProvider);
+    event NewCurator(address indexed _newCurator);
     event AllowedRecipientAdded(address indexed _recipient);
 }
 
@@ -1120,36 +1219,38 @@ contract DAO is DAOInterface, Token, TokenSale {
     }
 
     function DAO(
-        address _defaultServiceProvider,
+        address _curator,
         DAO_Creator _daoCreator,
+        uint _proposalDeposit,
         uint _minValue,
         uint _closingTime,
         address _privateSale
     ) TokenSale(_minValue, _closingTime, _privateSale) {
 
-        serviceProvider = _defaultServiceProvider;
+        curator = _curator;
         daoCreator = _daoCreator;
-        proposalDeposit = 20 ether;
+        proposalDeposit = _proposalDeposit;
         rewardAccount = new ManagedAccount(address(this));
-        lastTimeMinQuorumMet = now;
-        minQuorumDivisor = 5; // sets the minimal quorum to 20%
-        proposals.length++; // avoids a proposal with ID 0 because it is used
+        DAOrewardAccount = new ManagedAccount(address(this));
         if (address(rewardAccount) == 0)
             throw;
+        if (address(DAOrewardAccount) == 0)
+            throw;
+        lastTimeMinQuorumMet = now;
+        minQuorumDivisor = 5; // sets the minimal quorum to 20%
+        proposals.length = 1; // avoids a proposal with ID 0 because it is used
+
+        allowedRecipients[address(this)] = true;
+        allowedRecipients[curator] = true;
     }
 
     function () returns (bool success) {
-        if (now < closingTime + 40 days)
+        if (now < closingTime + saleGracePeriod)
             return buyTokenProxy(msg.sender);
         else
             return receiveEther();
     }
 
-
-    function payDAO() returns (bool) {
-        rewards += msg.value;
-        return true;
-    }
 
     function receiveEther() returns (bool) {
         return true;
@@ -1162,35 +1263,39 @@ contract DAO is DAOInterface, Token, TokenSale {
         string _description,
         bytes _transactionData,
         uint _debatingPeriod,
-        bool _newServiceProvider
+        bool _newCurator
     ) onlyTokenholders returns (uint _proposalID) {
 
         // Sanity check
-        if (_newServiceProvider && (
+        if (_newCurator && (
             _amount != 0
             || _transactionData.length != 0
-            || _recipient == serviceProvider
+            || _recipient == curator
             || msg.value > 0
-            || _debatingPeriod < 1 weeks)) {
+            || _debatingPeriod < minSplitDebatePeriod)) {
             throw;
-        } else if(
-            !_newServiceProvider
-            && (!isRecipientAllowed(_recipient) || (_debatingPeriod < 2 weeks))
+        } else if (
+            !_newCurator
+            && (!isRecipientAllowed(_recipient) || (_debatingPeriod <  minProposalDebatePeriod))
         ) {
             throw;
         }
 
-        if (!isFunded
+        if (_debatingPeriod > 8 weeks)
+            throw;
+
+        if (!isFueled
             || now < closingTime
-            || (msg.value < proposalDeposit && !_newServiceProvider)) {
+            || (msg.value < proposalDeposit && !_newCurator)) {
 
             throw;
         }
 
-        if (_recipient == address(rewardAccount) && _amount > rewards)
+        if (now + _debatingPeriod < now) // prevents overflow
             throw;
 
-        if (now + _debatingPeriod < now) // prevents overflow
+        // to prevent a 51% attacker to convert the ether into deposit
+        if (msg.sender == address(this))
             throw;
 
         _proposalID = proposals.length++;
@@ -1202,16 +1307,19 @@ contract DAO is DAOInterface, Token, TokenSale {
         p.votingDeadline = now + _debatingPeriod;
         p.open = true;
         //p.proposalPassed = False; // that's default
-        p.newServiceProvider = _newServiceProvider;
-        if (_newServiceProvider)
+        p.newCurator = _newCurator;
+        if (_newCurator)
             p.splitData.length++;
         p.creator = msg.sender;
         p.proposalDeposit = msg.value;
+
+        sumOfProposalDeposits += msg.value;
+
         ProposalAdded(
             _proposalID,
             _recipient,
             _amount,
-            _newServiceProvider,
+            _newCurator,
             _description
         );
     }
@@ -1267,6 +1375,14 @@ contract DAO is DAOInterface, Token, TokenSale {
     ) noEther returns (bool _success) {
 
         Proposal p = proposals[_proposalID];
+
+        if (p.newCurator) {
+            if (now > p.votingDeadline + splitExecutionPeriod) {
+                p.open = false;
+            }
+            return;
+        }
+
         // Check if the proposal can be executed
         if (now < p.votingDeadline  // has the voting deadline arrived?
             // Have the votes been counted?
@@ -1277,51 +1393,73 @@ contract DAO is DAOInterface, Token, TokenSale {
             throw;
         }
 
-        if (p.newServiceProvider) {
-            p.open = false;
+        // If the curator removed the recipient from the whitelist, close the proposal
+        // in order to free the deposit and allow unblocking of voters
+        if (!allowedRecipients[p.recipient] && p.open) {
+            closeProposal(_proposalID);
+            p.creator.send(p.proposalDeposit);
             return;
         }
 
+        bool proposalCheck = true;
+
+        if (p.amount > actualBalance())
+            proposalCheck = false;
+
         uint quorum = p.yea + p.nay;
 
+        // require 53% for calling newContract()
+        if (_transactionData.length >= 4 && _transactionData[0] == 0x68
+            && _transactionData[1] == 0x37 && _transactionData[2] == 0xff
+            && _transactionData[3] == 0x1e
+            && quorum < minQuorum(actualBalance() + rewardToken[address(this)])) {
+
+                proposalCheck = false;
+        }
+
         // Execute result
-        if (quorum >= minQuorum(p.amount) && p.yea > p.nay) {
+        if (quorum >= minQuorum(p.amount) && p.yea > p.nay && proposalCheck) {
             if (!p.creator.send(p.proposalDeposit))
                 throw;
-            // Without this throw, the creator of the proposal can repeat this,
-            // and get so much ether
+
+            lastTimeMinQuorumMet = now;
+
             if (!p.recipient.call.value(p.amount)(_transactionData))
                 throw;
+
             p.proposalPassed = true;
             _success = true;
-            lastTimeMinQuorumMet = now;
-            if (p.recipient == address(rewardAccount)) {
-                // This happens when multiple similar proposals are created and
-                // both are passed at the same time.
-                if (rewards < p.amount)
-                    throw;
-                rewards -= p.amount;
-            } else {
-                rewardToken[address(this)] += p.amount;
-                totalRewardToken += p.amount;
-            }
-        } else if (quorum >= minQuorum(p.amount) && p.nay >= p.yea) {
+            rewardToken[address(this)] += p.amount;
+            totalRewardToken += p.amount;
+        } else if (quorum >= minQuorum(p.amount) && p.nay >= p.yea || !proposalCheck) {
             if (!p.creator.send(p.proposalDeposit))
                 throw;
             lastTimeMinQuorumMet = now;
         }
 
-        // Since the voting deadline is over, close the proposal
-        p.open = false;
+        closeProposal(_proposalID);
 
         // Initiate event
         ProposalTallied(_proposalID, _success, quorum);
     }
 
 
+    function closeProposal(uint _proposalID) internal {
+        Proposal p = proposals[_proposalID];
+        if (p.open)
+            sumOfProposalDeposits -= p.proposalDeposit;
+        p.open = false;
+    }
+
+    function emergenyCloseProposal(uint _proposalID) external {
+        Proposal p = proposals[_proposalID];
+        if (p.votingDeadline + executeProposalPeriod < now && p.open)
+            closeProposal(_proposalID);
+    }
+
     function splitDAO(
         uint _proposalID,
-        address _newServiceProvider
+        address _newCurator
     ) noEther onlyTokenholders returns (bool _success) {
 
         Proposal p = proposals[_proposalID];
@@ -1329,12 +1467,12 @@ contract DAO is DAOInterface, Token, TokenSale {
         // Sanity check
 
         if (now < p.votingDeadline  // has the voting deadline arrived?
-            //The request for a split expires 41 days after the voting deadline
-            || now > p.votingDeadline + 41 days
-            // Does the new service provider address match?
-            || p.recipient != _newServiceProvider
-            // Is it a new service provider proposal?
-            || !p.newServiceProvider
+            //The request for a split expires XX days after the voting deadline
+            || now > p.votingDeadline + splitExecutionPeriod
+            // Does the new Curator address match?
+            || p.recipient != _newCurator
+            // Is it a new curator proposal?
+            || !p.newCurator
             // Have you voted for this split?
             || !p.votedYes[msg.sender]
             // Did you already vote on another proposal?
@@ -1346,20 +1484,20 @@ contract DAO is DAOInterface, Token, TokenSale {
         // If the new DAO doesn't exist yet, create the new DAO and store the
         // current split data
         if (address(p.splitData[0].newDAO) == 0) {
-            p.splitData[0].newDAO = createNewDAO(_newServiceProvider);
+            p.splitData[0].newDAO = createNewDAO(_newCurator);
             // Call depth limit reached, etc.
             if (address(p.splitData[0].newDAO) == 0)
                 throw;
-            // p.proposalDeposit should be zero here
-            if (this.balance < p.proposalDeposit)
+            // should never happen
+            if (this.balance < sumOfProposalDeposits)
                 throw;
-            p.splitData[0].splitBalance = this.balance - p.proposalDeposit;
+            p.splitData[0].splitBalance = actualBalance();
             p.splitData[0].rewardToken = rewardToken[address(this)];
             p.splitData[0].totalSupply = totalSupply;
             p.proposalPassed = true;
         }
 
-        // Move funds and assign new Tokens
+        // Move ether and assign new Tokens
         uint fundsToBeMoved =
             (balances[msg.sender] * p.splitData[0].splitBalance) /
             p.splitData[0].totalSupply;
@@ -1371,35 +1509,77 @@ contract DAO is DAOInterface, Token, TokenSale {
         uint rewardTokenToBeMoved =
             (balances[msg.sender] * p.splitData[0].rewardToken) /
             p.splitData[0].totalSupply;
+
+        uint paidOutToBeMoved = DAOpaidOut[address(this)] * rewardTokenToBeMoved /
+            rewardToken[address(this)];
+
         rewardToken[address(p.splitData[0].newDAO)] += rewardTokenToBeMoved;
         if (rewardToken[address(this)] < rewardTokenToBeMoved)
             throw;
         rewardToken[address(this)] -= rewardTokenToBeMoved;
 
+        DAOpaidOut[address(p.splitData[0].newDAO)] += paidOutToBeMoved;
+        if (DAOpaidOut[address(this)] < paidOutToBeMoved)
+            throw;
+        DAOpaidOut[address(this)] -= paidOutToBeMoved;
+
         // Burn DAO Tokens
         Transfer(msg.sender, 0, balances[msg.sender]);
+        withdrawRewardFor(msg.sender); // be nice, and get his rewards
         totalSupply -= balances[msg.sender];
         balances[msg.sender] = 0;
-        paidOut[address(p.splitData[0].newDAO)] += paidOut[msg.sender];
         paidOut[msg.sender] = 0;
-
         return true;
     }
 
+    function newContract(address _newContract){
+        if (msg.sender != address(this) || !allowedRecipients[_newContract]) return;
+        // move all ether
+        if (!_newContract.call.value(address(this).balance)()) {
+            throw;
+        }
+
+        //move all reward tokens
+        rewardToken[_newContract] += rewardToken[address(this)];
+        rewardToken[address(this)] = 0;
+        DAOpaidOut[_newContract] += DAOpaidOut[address(this)];
+        DAOpaidOut[address(this)] = 0;
+    }
+
+
+    function retrieveDAOReward(bool _toMembers) external noEther returns (bool _success) {
+        DAO dao = DAO(msg.sender);
+
+        if ((rewardToken[msg.sender] * DAOrewardAccount.accumulatedInput()) /
+            totalRewardToken < DAOpaidOut[msg.sender])
+            throw;
+
+        uint reward =
+            (rewardToken[msg.sender] * DAOrewardAccount.accumulatedInput()) /
+            totalRewardToken - DAOpaidOut[msg.sender];
+        if(_toMembers) {
+            if (!DAOrewardAccount.payOut(dao.rewardAccount(), reward))
+                throw;
+            }
+        else {
+            if (!DAOrewardAccount.payOut(dao, reward))
+                throw;
+        }
+        DAOpaidOut[msg.sender] += reward;
+        return true;
+    }
 
     function getMyReward() noEther returns (bool _success) {
         return withdrawRewardFor(msg.sender);
     }
 
 
-    function withdrawRewardFor(address _account) noEther returns (bool _success) {
-        // The account's portion of Reward Tokens of this DAO
-        uint portionOfTheReward =
-            (balanceOf(_account) * rewardToken[address(this)]) /
-            totalSupply + rewardToken[_account];
+    function withdrawRewardFor(address _account) noEther internal returns (bool _success) {
+        if ((balanceOf(_account) * rewardAccount.accumulatedInput()) / totalSupply < paidOut[_account])
+            throw;
+
         uint reward =
-            (portionOfTheReward * rewardAccount.accumulatedInput()) /
-            totalRewardToken - paidOut[_account];
+            (balanceOf(_account) * rewardAccount.accumulatedInput()) / totalSupply - paidOut[_account];
         if (!rewardAccount.payOut(_account, reward))
             throw;
         paidOut[_account] += reward;
@@ -1408,7 +1588,7 @@ contract DAO is DAOInterface, Token, TokenSale {
 
 
     function transfer(address _to, uint256 _value) returns (bool success) {
-        if (isFunded
+        if (isFueled
             && now > closingTime
             && !isBlocked(msg.sender)
             && transferPaidOut(msg.sender, _to, _value)
@@ -1429,7 +1609,7 @@ contract DAO is DAOInterface, Token, TokenSale {
 
 
     function transferFrom(address _from, address _to, uint256 _value) returns (bool success) {
-        if (isFunded
+        if (isFueled
             && now > closingTime
             && !isBlocked(_from)
             && transferPaidOut(_from, _to, _value)
@@ -1470,46 +1650,45 @@ contract DAO is DAOInterface, Token, TokenSale {
 
 
     function changeProposalDeposit(uint _proposalDeposit) noEther external {
-        if (msg.sender != address(this) || _proposalDeposit > this.balance / 10)
+        if (msg.sender != address(this) || _proposalDeposit > actualBalance() / 10)
             throw;
         proposalDeposit = _proposalDeposit;
     }
 
 
-    function addAllowedAddress(address _recipient) noEther external returns (bool _success) {
-        if (msg.sender != serviceProvider)
+    function changeAllowedRecipients(address _recipient, bool _allowed) noEther external returns (bool _success) {
+        if (msg.sender != curator)
             throw;
-        allowedRecipients.push(_recipient);
+        allowedRecipients[_recipient] = _allowed;
         return true;
     }
 
 
     function isRecipientAllowed(address _recipient) internal returns (bool _isAllowed) {
-        if (_recipient == serviceProvider
-            || _recipient == address(rewardAccount)
-            || _recipient == address(this)
+        if (allowedRecipients[_recipient]
             || (_recipient == address(extraBalance)
                 // only allowed when at least the amount held in the
                 // extraBalance account has been spent from the DAO
                 && totalRewardToken > extraBalance.accumulatedInput()))
             return true;
+        else
+            return false;
+    }
 
-        for (uint i = 0; i < allowedRecipients.length; ++i) {
-            if (_recipient == allowedRecipients[i])
-                return true;
-        }
-        return false;
+    function actualBalance() internal constant returns (uint _actualBalance) {
+        return this.balance - sumOfProposalDeposits;
     }
 
 
-    function minQuorum(uint _value) internal returns (uint _minQuorum) {
+    function minQuorum(uint _value) internal constant returns (uint _minQuorum) {
         // minimum of 20% and maximum of 53.33%
-        return totalSupply / minQuorumDivisor + _value / 3;
+        return totalSupply / minQuorumDivisor +
+            (_value * totalSupply) / (3 * (actualBalance() + rewardToken[address(this)]));
     }
 
 
     function halveMinQuorum() returns (bool _success) {
-        if (lastTimeMinQuorumMet < (now - 52 weeks)) {
+        if (lastTimeMinQuorumMet < (now - quorumHalvingPeriod)) {
             lastTimeMinQuorumMet = now;
             minQuorumDivisor *= 2;
             return true;
@@ -1518,10 +1697,9 @@ contract DAO is DAOInterface, Token, TokenSale {
         }
     }
 
-
-    function createNewDAO(address _newServiceProvider) internal returns (DAO _newDAO) {
-        NewServiceProvider(_newServiceProvider);
-        return daoCreator.createDAO(_newServiceProvider, 0, now + 42 days);
+    function createNewDAO(address _newCurator) internal returns (DAO _newDAO) {
+        NewCurator(_newCurator);
+        return daoCreator.createDAO(_newCurator, 0, 0, now + splitExecutionPeriod);
     }
 
 
@@ -1530,12 +1708,16 @@ contract DAO is DAOInterface, Token, TokenSale {
         return proposals.length - 1;
     }
 
+    function getNewDAOAdress(uint _proposalID) constant returns (address _newDAO) {
+        return proposals[_proposalID].splitData[0].newDAO;
+    }
+
 
     function isBlocked(address _account) returns (bool) {
         if (blocked[_account] == 0)
             return false;
         Proposal p = proposals[blocked[_account]];
-        if (!p.open) {
+        if (now > p.votingDeadline) {
             blocked[_account] = 0;
             return false;
         } else {
@@ -1546,20 +1728,23 @@ contract DAO is DAOInterface, Token, TokenSale {
 
 contract DAO_Creator {
     function createDAO(
-        address _defaultServiceProvider,
+        address _curator,
+        uint _proposalDeposit,
         uint _minValue,
         uint _closingTime
     ) returns (DAO _newDAO) {
 
         return new DAO(
-            _defaultServiceProvider,
+            _curator,
             DAO_Creator(this),
+            _proposalDeposit,
             _minValue,
             _closingTime,
             msg.sender
         );
     }
 }
+
 \end{verbatim}
 
 \subsection{Sample Offer}\label{app:SampleOffer}
@@ -1571,8 +1756,8 @@ contract SampleOffer {
     uint dailyCosts;
 
 
-    address serviceProvider;
-    bytes32 hashOfTheContract;
+    address contractor;
+    bytes32 hashOfTheTerms;
     uint minDailyCosts;
     uint paidOut;
 
@@ -1587,7 +1772,7 @@ contract SampleOffer {
         if (promiseValid) {
             if (msg.sender != address(client))
                 throw;
-        } else if (msg.sender != serviceProvider) {
+        } else if (msg.sender != contractor) {
                 throw;
         }
         _
@@ -1600,16 +1785,16 @@ contract SampleOffer {
     }
 
     function SampleOffer(
-        address _serviceProvider,
-        bytes32 _hashOfTheContract,
+        address _contractor,
+        bytes32 _hashOfTheTerms,
         uint _totalCosts,
         uint _oneTimeCosts,
         uint _minDailyCosts,
         uint _rewardDivisor,
         uint _deploymentReward
     ) {
-        serviceProvider = _serviceProvider;
-        hashOfTheContract = _hashOfTheContract;
+        contractor = _contractor;
+        hashOfTheTerms = _hashOfTheTerms;
         totalCosts = _totalCosts;
         oneTimeCosts = _oneTimeCosts;
         minDailyCosts = _minDailyCosts;
@@ -1621,7 +1806,7 @@ contract SampleOffer {
     function sign() {
         if (msg.value < totalCosts && dateOfSignature != 0)
             throw;
-        if (!serviceProvider.send(oneTimeCosts))
+        if (!contractor.send(oneTimeCosts))
             throw;
         client = DAO(msg.sender);
         dateOfSignature = now;
@@ -1640,37 +1825,37 @@ contract SampleOffer {
     }
 
     function getDailyPayment() {
-        if (msg.sender != serviceProvider)
+        if (msg.sender != contractor)
             throw;
         uint amount = (now - dateOfSignature) / (1 days) * dailyCosts - paidOut;
-        if (serviceProvider.send(amount))
+        if (contractor.send(amount))
             paidOut += amount;
     }
 
     function setRewardDivisor(uint _rewardDivisor) callingRestriction {
-        if (_rewardDivisor < 50 && msg.sender != address(client))
+        if (_rewardDivisor < 50)
             throw; // 2% is the default max reward
         rewardDivisor = _rewardDivisor;
     }
 
     function setDeploymentFee(uint _deploymentReward) callingRestriction {
-        if (deploymentReward > 10 ether && msg.sender != address(client))
-            throw; 
+        if (deploymentReward > 10 ether)
+            throw; // TODO, set a max defined by Curator, or ideally oracle (set in euro)
         deploymentReward = _deploymentReward;
     }
 
-    // interface for Slocks
+    // interface for Ethereum Computer
     function payOneTimeReward() returns(bool) {
         if (msg.value < deploymentReward)
             throw;
         if (promiseValid) {
-            if (client.payDAO.value(msg.value)()) {
+            if (client.DAOrewardAccount().call.value(msg.value)()) {
                 return true;
             } else {
                 throw;
             }
         } else {
-            if (serviceProvider.send(msg.value)) {
+            if (contractor.send(msg.value)) {
                 return true;
             } else {
                 throw;
@@ -1681,13 +1866,13 @@ contract SampleOffer {
     // pay reward
     function payReward() returns(bool) {
         if (promiseValid) {
-            if (client.payDAO.value(msg.value)()) {
+            if (client.DAOrewardAccount().call.value(msg.value)()) {
                 return true;
             } else {
                 throw;
             }
         } else {
-            if (serviceProvider.send(msg.value)) {
+            if (contractor.send(msg.value)) {
                 return true;
             } else {
                 throw;

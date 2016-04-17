@@ -2,7 +2,7 @@ var dao = web3.eth.contract($dao_abi).at('$dao_address');
 var offer = web3.eth.contract($offer_abi).at('$offer_address');
 
 console.log("Add offer contract as allowed recipient");
-dao.addAllowedAddress.sendTransaction('$offer_address', {from: serviceProvider, gas: 1000000});
+dao.changeAllowedRecipients.sendTransaction('$offer_address', true, {from: curator, gas: 1000000});
 checkWork();
 
 if ($should_halve_minquorum) {
@@ -11,30 +11,17 @@ if ($should_halve_minquorum) {
 }
 
 addToTest('creator_balance_before', web3.fromWei(eth.getBalance(proposalCreator)));
-console.log("Creating a new proposal for $offer_amount ether.");
-var tx_hash = null;
-dao.newProposal.sendTransaction(
-    '$offer_address',
-    web3.toWei($offer_amount, "ether"),
-    '$offer_desc',
-    '$transaction_bytecode',
-    $debating_period,
-    false,
-    {
-        from: proposalCreator,
-        value: web3.toWei($proposal_deposit, "ether"),
-        gas: 1000000
-    }
-    , function (e, res) {
-        if (e) {
-            console.log(e + "at newProposal()!");
-        } else {
-            tx_hash = res;
-            console.log("newProposal tx hash is: " + tx_hash);
-        }
-    }
+var prop_id = attempt_proposal(
+    dao, // DAO in question
+    '$offer_address', // recipient
+    proposalCreator, // proposal creator
+    $offer_amount, // proposal amount in ether
+    '$offer_desc', // description
+    '$transaction_bytecode', //bytecode
+    $debating_period, // debating period
+    $proposal_deposit, // proposal deposit in ether
+    false // whether it's a split proposal or not
 );
-checkWork();
 
 addToTest('creator_balance_after_proposal', web3.fromWei(eth.getBalance(proposalCreator)));
 addToTest(
@@ -44,8 +31,6 @@ addToTest(
 addToTest('dao_proposals_number', dao.numberOfProposals());
 
 var votes = $votes;
-var prop_id = 1;
-
 console.log("Deadline is: " + dao.proposals(prop_id)[3] + " Voting ... ");
 for (i = 0; i < votes.length; i++) {
     console.log("User " + i +" is voting ["+ votes[i] +"]. His token balance is: " + web3.fromWei(dao.balanceOf(eth.accounts[i])) + " ether and NOW is: " + Math.floor(Date.now() / 1000));
@@ -61,23 +46,23 @@ for (i = 0; i < votes.length; i++) {
 checkWork();
 addToTest('proposal_yay', parseInt(web3.fromWei(dao.proposals(prop_id)[9])));
 addToTest('proposal_nay', parseInt(web3.fromWei(dao.proposals(prop_id)[10])));
-addToTest('provider_balance_before', web3.fromWei(eth.getBalance(serviceProvider)));
+addToTest('curator_balance_before', web3.fromWei(eth.getBalance(curator)));
 
 setTimeout(function() {
     miner.stop(0);
     console.log("After debating period. NOW is: " + Math.floor(Date.now() / 1000));
     console.log("Executing proposal ...");
-    dao.executeProposal.sendTransaction(prop_id, '$transaction_bytecode', {from:serviceProvider, gas:1000000});
+    dao.executeProposal.sendTransaction(prop_id, '$transaction_bytecode', {from:curator, gas:1000000});
     checkWork();
 
     // 5th member of the structure is proposalPassed
     addToTest('proposal_passed', dao.proposals(prop_id)[5]);
     addToTest('creator_balance_after_execution', web3.fromWei(eth.getBalance(proposalCreator)));
-    addToTest('provider_balance_after', web3.fromWei(eth.getBalance(serviceProvider)));
+    addToTest('curator_balance_after', web3.fromWei(eth.getBalance(curator)));
 
     addToTest(
         'onetime_costs',
-        bigDiffRound(testMap['provider_balance_after'], testMap['provider_balance_before'])
+        bigDiffRound(testMap['curator_balance_after'], testMap['curator_balance_before'])
     );
     addToTest(
         'deposit_returned',

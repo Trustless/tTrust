@@ -16,7 +16,8 @@ def calculate_closing_time(obj, script_name, substitutions):
 
 
 def run(ctx):
-    ctx.create_js_file(substitutions={
+    ctx.create_js_file(
+        substitutions={
             "dao_abi": ctx.dao_abi,
             "dao_bin": ctx.dao_bin,
             "creator_abi": ctx.creator_abi,
@@ -26,6 +27,7 @@ def run(ctx):
             "offer_onetime": ctx.args.deploy_onetime_costs,
             "offer_total": ctx.args.deploy_total_costs,
             "min_value": ctx.args.deploy_min_value,
+            "default_proposal_deposit": ctx.args.deploy_proposal_deposit
         },
         cb_before_creation=calculate_closing_time
     )

@@ -6,7 +6,7 @@
 }, {
     "name": "min_value",
     "default": 40,
-    "description": "Minimum value in Ether to consider the DAO crowdfunded",
+    "description": "Minimum value in Ether to consider the DAO fueled",
     "type": "int"
 },{
     "name": "onetime_costs",
@@ -17,5 +17,11 @@
     "name": "total_costs",
     "default": 10,
     "description": "The total costs (in ether) in the offer to the DAO",
+    "type":"int"
+},
+{
+    "name": "proposal_deposit",
+    "default": 20,
+    "description": "The default proposal deposit for every proposal of the DAO",
     "type":"int"
 }]

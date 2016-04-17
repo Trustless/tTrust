@@ -1,34 +1,24 @@
-var dao = web3.eth.contract($dao_abi).at('$dao_address');
-var newServiceProvider = eth.accounts[1];
+var dao_abi = $dao_abi;
+var dao = web3.eth.contract(dao_abi).at('$dao_address');
+var split_execution_period = $split_execution_period;
+var child_dao_curator = '$child_dao_curator';
 
-console.log("Creating proposal to change SP...");
-var tx_hash = null;
-dao.newProposal.sendTransaction(
-    newServiceProvider, // new SP
-    0,
-    'Changing SP to eth.accounts[1]',
-    '',
-    $debating_period,
-    true,
-    {
-        from: proposalCreator,
-        gas: 1000000
-    }
-    , function (e, res) {
-        if (e) {
-            console.log(e + "at newProposal()!");
-        } else {
-            tx_hash = res;
-            console.log("newProposal tx hash is: " + tx_hash);
-        }
-    }
+var prop_id = attempt_proposal(
+    dao, // DAO in question
+    child_dao_curator, // recipient
+    proposalCreator, // proposal creator
+    0, // proposal amount in ether
+    'Voting to split and change Curator', // description
+    '', //bytecode
+    $debating_period, // debating period
+    0, // proposal deposit in ether
+    true // whether it's a split proposal or not
 );
-checkWork();
 
 var votes = $votes;
-var prop_id = $prop_id;
 console.log("Voting for split proposal '" + prop_id + "' ...");
 for (i = 0; i < votes.length; i++) {
+    console.log("User [" + i + "] is voting '" + votes[i] + "'for split proposal");
     dao.vote.sendTransaction(
         prop_id,
         votes[i],
@@ -48,19 +38,15 @@ setTimeout(function() {
     // now each user who voted for the split should call splitDAO to execute the proposal
     for (i = 0; i < votes.length; i++) {
         if (votes[i]) {
-            dao.splitDAO.sendTransaction(
-                prop_id,
-                newServiceProvider,
-                {from:eth.accounts[i], gas: $split_gas}
-            );
+            console.log("User [" + i + "] is calling splitDAO()");
+            attempt_split(dao, prop_id, eth.accounts[i], child_dao_curator, split_execution_period);
         }
     }
-    checkWork();
     console.log("After split execution");
     addToTest('proposal_passed', dao.proposals(prop_id)[5]);
     addToTest('proposal_newdao', dao.splitProposalNewAddress(prop_id, 0));
 
-    var newdao = web3.eth.contract($dao_abi).at(testMap['proposal_newdao']);
+    var newdao = web3.eth.contract(dao_abi).at(testMap['proposal_newdao']);
     // check token balance of each user in both DAOs
     oldDAOBalance = [];
     newDAOBalance = [];
@@ -73,8 +59,10 @@ setTimeout(function() {
     addToTest('oldDaoRewardTokens', parseFloat(web3.fromWei(dao.rewardToken('$dao_address'))));
     addToTest('newDaoRewardTokens', parseFloat(web3.fromWei(dao.rewardToken(testMap['proposal_newdao']))));
 
-    addToTest('newDAOTotalSupply', parseInt(web3.fromWei(newdao.totalSupply())));
+    addToTest('new_dao_balance', web3.fromWei(eth.getBalance(newdao.address)).ceil());
+    addToTest('new_dao_total_supply', web3.fromWei(newdao.totalSupply()).ceil());
     addToTest('newDAOProposalDeposit', parseInt(web3.fromWei(newdao.proposalDeposit())));
+    addToTest('new_dao_closing_time', parseInt(newdao.closingTime()));
 
     testResults();
 }, $debating_period * 1000);

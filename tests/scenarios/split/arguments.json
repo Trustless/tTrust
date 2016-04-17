@@ -3,4 +3,9 @@
     "default": 15,
     "description":"Number of seconds to debate the split proposal",
     "type": "int"
+}, {
+    "name": "execution_period",
+    "default": 50,
+    "description":"Number of seconds after the voting deadline for which a split proposal is executable",
+    "type": "int"
 }]
