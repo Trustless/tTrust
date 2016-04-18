@@ -2,9 +2,9 @@
 
 
 ## What is it?
-A generic DAO (Decentralized Autonomous Organization) framework written in Solidity to run on the Ethereum blockchain. 
+A generic Guild (Decentralized Autonomous Organization) framework written in Solidity to run on the GuildSkrypt blockchain. 
 
-Feel free to reuse to create your own Decentralized Autonomous Organization using this framework.
+Feel free to reuse to create your own Guild using this framework.
 
 **Reference:** *"Decentralized autonomous organization to automate governance" -* [White Paper](https://download.slock.it/public/DAO/WhitePaper.pdf) - [Primer](https://blog.slock.it/a-primer-to-the-decentralized-autonomous-organization-dao-69fb125bd3cd)
 
@@ -12,14 +12,14 @@ Feel free to reuse to create your own Decentralized Autonomous Organization usin
 
 ## Disclaimer
 
-The future remains a work in progress. Our vision exists in a world where laws vary widely. It is important to remember that anyone who uses DAO code will do so at their own risk. We can’t speculate about the legal status of DAOs worldwide. Whatever our personal beliefs may be, people must draw their own conclusions, relying on legal advice where appropriate. The Authors are not law firm and we are not in the business of offering legal advice. 
+The future remains a work in progress. Our vision exists in a world where laws vary widely. It is important to remember that anyone who uses DAO code to launch a Guild will do so at their own risk. We can’t speculate about the legal status of GuildSkrypt organizations worldwide. Whatever our personal beliefs may be, people must draw their own conclusions, relying on legal advice where appropriate. The Authors are not law firm and we are not in the business of offering legal advice. 
 
-**If you create a DAO it will be your DAO, and you will be responsible for its operation.**
+**If you create a Guild it will be your Organization, and you will be responsible for its workflow.**
 
 
 
 ## Contact
-A very active community can be found on  [slack](http://slack.slock.it:3000)
+A very active community can be found on  [slack](http://guildworx.slock.it:3000)
 
 
 
@@ -28,9 +28,9 @@ A very active community can be found on  [slack](http://slack.slock.it:3000)
 
 ## Overview
 
-Our generic DAO framework allows people to create Decentralized Autonomous Organizations (DAOs) governed by the code in this repository written immutably to the blockchain.
+Borrowed from the generous developers at slock.it the generic DAO framework allows people to create Guilds governed by the code in this repository immutably written to the blockchain.
 
-We are making the generic DAO model we developed free and open source, so it can be reused by anyone wishing to put together a transparent organization where governance and decision making systems are immutably programmed in the Ethereum blockchain. This code been reviewed by hundreds of pairs of eyes from our community and by one of the most respected auditing companies in the world, Deja Vu.
+They are making the generic DAO model they developed free and open source, so it can be reused by anyone wishing to put together a transparent organization where governance and decision making systems are immutably programmed in the Ethereum blockchain. This code been reviewed by hundreds of pairs of eyes from our community and by one of the most respected auditing companies in the world, Deja Vu.
 
 This DAO model is open source under the LGPL, so it can be reused by anyone wishing to put together a transparent organization where governance and decision making system are immutably programmed in the Blockchain.
 
