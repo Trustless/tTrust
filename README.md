@@ -1,10 +1,10 @@
-# The DAO
+# Trustless Token Trading
 
 
 ## What is it?
-A generic Guild (Decentralized Autonomous Organization) framework written in Solidity to run on the GuildSkrypt blockchain. 
+A Token Trading DAO (Decentralized Autonomous Organization) framework written in Solidity to run on the Ethereum blockchain. 
 
-Feel free to reuse to create your own Guild using this framework.
+Feel free to reuse to deploy your own Token Trading DAO using this framework.
 
 **Reference:** *"Decentralized autonomous organization to automate governance" -* [White Paper](https://download.slock.it/public/DAO/WhitePaper.pdf) - [Primer](https://blog.slock.it/a-primer-to-the-decentralized-autonomous-organization-dao-69fb125bd3cd)
 
