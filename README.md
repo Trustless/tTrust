@@ -1,10 +1,10 @@
-# Trustless Token Trading
+# Trustless Token Trust
 
 
 ## What is it?
-Trustless Token Trading is a DAO (Decentralized Autonomous Organization) framework written in Solidity to run on the Ethereum blockchain. 
+Trustless Token Trust is a DAO (Decentralized Autonomous Organization) framework written in Solidity to run on the Ethereum blockchain. 
 
-Feel free to reuse to deploy your own Token Trading DAO using this framework.
+Feel free to reuse to deploy your own Token Trust using this framework.
 
 **Reference:** *"Decentralized autonomous organization to automate governance" -* [White Paper](https://download.slock.it/public/DAO/WhitePaper.pdf) - [Primer](https://blog.slock.it/a-primer-to-the-decentralized-autonomous-organization-dao-69fb125bd3cd)
 
