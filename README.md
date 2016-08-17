@@ -14,12 +14,12 @@ Feel free to reuse to deploy your own Token Trust using this framework.
 
 The future remains a work in progress. Our vision exists in a world where laws vary widely. It is important to remember that anyone who uses DAO code to launch a Guild will do so at their own risk. We can’t speculate about the legal status of GuildSkrypt organizations worldwide. Whatever our personal beliefs may be, people must draw their own conclusions, relying on legal advice where appropriate. The Authors are not law firm and we are not in the business of offering legal advice. 
 
-**If you create a Guild it will be your Organization, and you will be responsible for its workflow.**
+**If you create a Trust it will be your Organization, and you will be responsible for its workflow.**
 
 
 
 ## Contact
-A very active community can be found on  [slack](http://guildworx.slock.it:3000)
+A very active community can be found on  [slack](http://guildworx.slack.com:3000)
 
 
 
